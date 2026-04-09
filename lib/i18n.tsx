@@ -1,0 +1,934 @@
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export type Locale = 'en' | 'zh';
+
+const K_LOCALE = '@cc/locale';
+
+// ---------------------------------------------------------------------------
+// Translation dictionaries
+// ---------------------------------------------------------------------------
+
+const en = {
+  // Common
+  continue: 'Continue',
+  cancel: 'Cancel',
+  reset: 'Reset',
+  tryAgain: 'Try Again',
+
+  // Auth – Signup
+  welcomeTitle: 'Welcome to\nCognitiveCare',
+  welcomeSubtitle: "Your personal cognitive health companion. Let's get to know you.",
+  yourName: 'Your name',
+  namePlaceholder: 'Arthur Anderson',
+  email: 'Email',
+  emailPlaceholder: 'arthur@example.com',
+  getStarted: 'Get Started',
+  dataPrivacy: 'Your data stays on your device.',
+
+  // Auth – Birth year
+  birthYearTitle: 'What year were you born?',
+  birthYearSubtitle: 'This helps us personalize your cognitive baseline.',
+  age: 'Age {{age}}',
+
+  // Auth – Focus
+  focusTitle: 'What matters most to you?',
+  focusSubtitle: "Pick what you'd like to strengthen. You can choose more than one.",
+  focusMemory: 'Memory',
+  focusMemoryDesc: 'Remembering names, dates, errands',
+  focusLanguage: 'Language',
+  focusLanguageDesc: 'Finding the right words',
+  focusAttention: 'Attention',
+  focusAttentionDesc: 'Staying focused',
+  focusSleep: 'Sleep',
+  focusSleepDesc: 'Rest and recovery',
+  focusSocial: 'Staying social',
+  focusSocialDesc: 'Connection with family & friends',
+
+  // Auth – Ready
+  readyTitle: "You're all set,\n{{name}}.",
+  readySubtitle: "Let's establish your cognitive baseline with a 60-second voice check-in.",
+  startFirstCheckIn: 'Start My First Check-In',
+  howItWorks: 'How it works',
+  howItWorksBody: "You'll hear a simple prompt. Speak naturally for about a minute about whatever comes to mind.",
+  speakNormal: 'Speak in your normal voice',
+  noWrongAnswers: 'There are no wrong answers',
+  recordingPrivate: 'Your recording stays private',
+
+  // Tabs
+  tabHome: 'Home',
+  tabScreening: 'Screening',
+  tabTraining: 'Training',
+  tabReports: 'Reports',
+  tabServices: 'Services',
+
+  // Home
+  headerCognitiveCare: 'CognitiveCare',
+  greetingMorning: 'Good morning',
+  greetingAfternoon: 'Good afternoon',
+  greetingEvening: 'Good evening',
+  statusCheckIn: "It's time for today's check-in. Just 60 seconds.",
+  statusGreatWork: 'Great work today. Your brain has been busy.',
+  statusBaseline: "Let's establish your baseline with a quick check-in.",
+  dailyVitality: 'Daily Vitality',
+  optimumRange: 'Optimum Range',
+  goodRange: 'Good Range',
+  building: 'Building',
+  badgeToday: 'TODAY',
+  badgeNextActivity: 'NEXT ACTIVITY',
+  dailyCheckIn: 'Daily Check-In',
+  extraAssessment: 'Extra Assessment',
+  voiceCheckDesc: 'Voice-based cognitive check — 60 seconds',
+  startNow: 'Start Now',
+  doAnother: 'Do Another',
+  tipsForYou: 'Tips for You',
+  cognitiveTips: 'Cognitive Tips',
+  viewAll: 'View All',
+  weeklyStreak: 'Weekly Streak',
+  day_one: 'Day',
+  day_other: 'Days',
+  assessments: 'Assessments',
+  loadDemoData: 'Load Demo Data',
+  resetDemo: 'Reset Demo',
+  resetDemoTitle: 'Reset demo?',
+  resetDemoMsg: 'This deletes your profile and assessment history so you can walk through signup again.',
+  demoDataLoaded: 'Demo data loaded',
+  demoDataLoadedMsg: "Margaret Chen's profile with 10 assessments has been loaded.",
+
+  // Tips
+  tipBlueberriesTitle: 'The Power of Blueberries',
+  tipBlueberriesBody: 'Antioxidants in berries may delay brain aging and improve memory.',
+  tipStoriesTitle: 'Stories Build Memory',
+  tipStoriesBody: 'Describing a memory aloud strengthens retrieval pathways.',
+  tipReadAloudTitle: 'Read Aloud',
+  tipReadAloudBody: '10 minutes of reading aloud daily keeps word retrieval sharp.',
+  tipNameThingsTitle: 'Name Three Things',
+  tipNameThingsBody: 'Pausing to name what you see boosts vocabulary fluency.',
+  tipSingleTaskTitle: 'Single-Task Windows',
+  tipSingleTaskBody: 'Focus in 25-minute blocks to train attention span.',
+  tipBreathTitle: '4-7-8 Breath',
+  tipBreathBody: 'A brief breathing exercise resets focus in under a minute.',
+  tipSleepTitle: 'Sleep & Synthesis',
+  tipSleepBody: '7 hours of rest helps the brain flush toxins and solidify memories.',
+  tipDimTitle: 'Dim at Dusk',
+  tipDimBody: 'Lowering light 60 min before bed supports deeper sleep.',
+  tipCallTitle: 'Call Someone Today',
+  tipCallBody: 'A 10-minute conversation exercises multiple cognitive networks.',
+  tipMealTitle: 'Share a Meal',
+  tipMealBody: 'Eating with others supports both memory and mood.',
+
+  // Screening
+  headerScreening: 'AI Screening',
+  statusOverview: 'Status Overview',
+  lastScreened: 'Last Screened: ',
+  daysNever: 'Never — start your first one',
+  daysToday: 'Today',
+  daysYesterday: 'Yesterday',
+  daysAgo: '{{days}} days ago',
+  completeFirstTrend: 'Complete your first to see trends',
+  scoreChange: 'Score change: {{sign}}{{delta}} since last time',
+  baselineScore: 'Baseline score: {{score}}',
+  readyToStart: 'Ready to start?',
+  voiceAssessment: 'Voice Assessment',
+  voiceAssessmentDesc: 'Speak naturally for 60 seconds. Our AI detects subtle linguistic changes and speech patterns.',
+  startRecording: 'Start Recording',
+  cognitiveGames: 'Cognitive Games',
+  comingSoon: 'Coming Soon',
+  dataDisclaimer: 'All data is encrypted and used solely for your personalized health insights. Results are not a diagnosis.',
+
+  // Training
+  headerTraining: 'My Training Plan',
+  keepMomentum: 'Keep the momentum!',
+  trainingSubtitle: 'Complete your language fluency module to reach your daily milestone.',
+  activeModules: 'Active Modules',
+  memoryBoost: 'Memory Boost',
+  completedToday: 'Completed Today',
+  languageFluency: 'Language Fluency',
+  vocabRecall: 'Focus: Vocabulary & Recall',
+  fiveMins: '5 MINS',
+  startSession: 'Start Session',
+  focusTraining: 'Focus Training',
+  availableIn2Hours: 'Available in 2 hours',
+  recentAchievements: 'Recent Achievements',
+  sevenDayStreak: '7-Day Streak',
+  consistencyKing: 'Consistency King',
+  memoryMaster: 'Memory Master',
+  level5Reached: 'Level 5 Reached',
+
+  // Reports
+  headerReports: 'Health Reports',
+  noReportsYet: 'No reports yet',
+  noReportsDesc: 'Complete your first voice check-in to see your personalized cognitive report here.',
+  startFirstCheckInBtn: 'Start First Check-In',
+  currentStatus: 'CURRENT STATUS',
+  stableHealthy: 'Stable & Healthy',
+  worthWatching: 'Worth Watching',
+  worthDiscussing: 'Worth Discussing',
+  clarityScore: "{{name}}'s Clarity Score",
+  basedOnAssessments_one: 'Based on {{count}} assessment',
+  basedOnAssessments_other: 'Based on {{count}} assessments',
+  trend: 'Trend',
+  checkInsTrending: '{{count}} check-ins, trending {{direction}}.',
+  trendUp: 'up',
+  trendDown: 'down',
+  riskLow: 'Low Risk',
+  riskModerate: 'Moderate',
+  riskElevated: 'Elevated',
+  recommendationFor: 'Recommendation for {{name}}',
+  allAssessments: 'All Assessments',
+
+  // Services
+  headerServices: 'Care Services',
+  eliteMembership: 'ELITE MEMBERSHIP',
+  familyPlus: 'CognitiveCare Family Plus',
+  familyPlusDesc: 'Comprehensive cognitive support for up to 4 family members, including monthly health audits and 24/7 specialist access.',
+  conciergeSpecialist: 'Dedicated Concierge Specialist',
+  homeVisit: 'Home-Visit Health Screenings',
+  upgradePrice: 'Upgrade for $49/mo',
+  bookSpecialist: 'Book Specialist',
+  specialistsDesc: 'Top-rated cognitive health experts available this week.',
+  drChen: 'Dr. Marcus Chen',
+  drChenRole: 'Neuro-Psychiatrist',
+  drJenkins: 'Dr. Sarah Jenkins',
+  drJenkinsRole: 'Cognitive Therapist',
+  drMiller: 'Dr. David Miller',
+  drMillerRole: 'Geriatric Specialist',
+  bookNow: 'Book Now',
+  insurancePlans: 'Insurance Plans',
+  insuranceDesc: 'Tailored coverage based on your latest cognitive screening.',
+  recommended: 'RECOMMENDED',
+  basic: 'BASIC',
+  planPlusTitle: 'Cognitive Care Plus',
+  planPlusPrice: '$89/mo',
+  planPlusDesc: 'Full coverage for diagnostics, specialist consultations, and memory rehabilitation tools.',
+  planPlusPerk1: '100% Diagnostic Coverage',
+  planPlusPerk2: 'Unlimited Tele-health Visits',
+  planBasicTitle: 'Essential Shield',
+  planBasicPrice: '$35/mo',
+  planBasicDesc: 'Fundamental protection for annual checkups and basic cognitive screening access.',
+  planBasicPerk1: 'Annual Performance Audit',
+  planBasicPerk2: 'Pharmacy Discounts',
+  viewCoverage: 'View Coverage Details',
+
+  // Recording
+  firstCheckInHeader: 'First Check-In',
+  voiceAssessmentHeader: 'Voice Assessment',
+  firstPromptLabel: 'HI {{name}}, YOUR FIRST PROMPT',
+  yourPrompt: 'YOUR PROMPT',
+  speakNaturally: 'Speak naturally. Take your time. There are no wrong answers.',
+  tapToStart: 'Tap to start recording',
+  listeningTap: 'Listening… tap to finish early',
+  preparingAssessment: 'Preparing your assessment…',
+  micNeeded: 'Microphone needed',
+  micNeededMsg: 'Please enable microphone access in Settings.',
+  couldNotStart: 'Could not start recording',
+  couldNotStop: 'Could not stop recording',
+  promptMemory: 'Tell me about a memory from this past week that made you smile.',
+  promptLanguage: "Describe your favorite meal — what's in it and why you love it.",
+  promptAttention: 'Walk me through your morning routine, step by step.',
+  promptSleep: 'Describe how you slept last night and how you feel right now.',
+  promptSocial: 'Tell me about someone in your life you spoke to recently.',
+  promptDefault: 'Tell me about your morning — what you did, what you ate, anything on your mind.',
+
+  // Analyzing
+  stepTranscribing: 'Transcribing your voice…',
+  stepAnalyzing: 'Analyzing vocabulary and rhythm…',
+  stepGenerating: 'Generating insights…',
+  somethingWrong: 'Something went wrong',
+  wordMemory: 'memory',
+  wordClarity: 'clarity',
+  wordVocabulary: 'vocabulary',
+  wordRhythm: 'rhythm',
+  wordFluency: 'fluency',
+  wordCoherence: 'coherence',
+  wordRecall: 'recall',
+  wordExpression: 'expression',
+  wordAttention: 'attention',
+  wordNarrative: 'narrative',
+  wordStructure: 'structure',
+  wordTemporal: 'temporal',
+  wordNaming: 'naming',
+  wordSequencing: 'sequencing',
+  wordReasoning: 'reasoning',
+
+  // Report
+  yourReport: 'Your Report',
+  todaysInsight: "TODAY'S INSIGHT",
+  overall: 'Overall',
+  basedOnVoiceSample: 'Based on your 60-second voice sample.',
+  dimensions: 'Dimensions',
+  dimMemory: 'Memory',
+  dimLanguage: 'Language',
+  dimAttention: 'Attention',
+  dimExecutive: 'Executive',
+  wordsYouUsed: 'Words You Used',
+  aiAnalysis: 'AI Analysis',
+  recommendations: 'Recommendations',
+  yourWords: 'Your words',
+  takeAnother: 'Take Another Assessment',
+  noReportAvailable: 'No report available. Start a new assessment.',
+  startAssessment: 'Start Assessment',
+
+  // AudioWaveform
+  aiListening: 'AI is listening...',
+
+  // Profile
+  defaultName: 'there',
+
+  // Tip cards
+  tipHomeTitle: 'Daily Check-in',
+  tipHomeBody: 'A daily voice check-in helps track your cognitive health trends.',
+  tipTrainingTitle: 'Why Train Daily?',
+  tipTrainingBody: 'Daily training keeps your brain active. Complete 3 exercises to stay sharp.',
+  tipScreeningTitle: 'Voice Assessment',
+  tipScreeningBody: 'Voice assessments use AI to analyze your speech patterns for cognitive health signals.',
+  tipServicesTitle: 'Professional Services',
+  tipServicesBody: 'Professional services complement AI screening with clinical brain health assessments.',
+  tipReportsTitle: 'Your Progress',
+  tipReportsBody: 'View all your assessment records and trends to understand your long-term cognitive health.',
+  tipShowTips: 'Show Tips',
+
+  // Training hub + game keys
+  trainingDailyGoal: 'Daily Goal',
+  trainingCompleted: 'Completed',
+  trainingXOfY: '{{done}} of {{total}}',
+  trainingStartGame: 'Start',
+  trainingCompletedToday: 'Done ✓',
+  gameCardFlip: 'Memory Match',
+  gameCardFlipDesc: 'Find matching pairs to train your visual memory.',
+  gameCardFlipInstructions: 'Tap cards to flip them. Find all matching pairs!',
+  gameCardFlipMoves: 'Moves',
+  gameCardFlipTime: 'Time',
+  gameCardFlipComplete: 'Great Memory!',
+  gameCardFlipStars3: 'Perfect — you found all pairs with very few moves!',
+  gameCardFlipStars2: 'Well done — your memory is sharp!',
+  gameCardFlipStars1: 'Good effort — keep practicing to improve!',
+  gamePlayAgain: 'Play Again',
+  gameBackToTraining: 'Back to Training',
+  gameCategoryFluency: 'Word Fluency',
+  gameCategoryFluencyDesc: 'Name as many words in a category as you can.',
+  gameCategoryFluencyInstructions: 'Type words that belong to the category. You have 60 seconds!',
+  gameCategoryFluencyPlaceholder: 'Type a word...',
+  gameCategoryFluencyAdd: 'Add',
+  gameCategoryFluencyDuplicate: 'Already added!',
+  gameCategoryFluencyExcellent: 'Excellent fluency! Your word recall is impressive.',
+  gameCategoryFluencyGood: 'Good job! You have solid word recall.',
+  gameCategoryFluencyPractice: 'Keep practicing — it gets easier each time!',
+  gameCategoryFluencyWords: '{{count}} words',
+  gameCatAnimals: 'Animals',
+  gameCatFruits: 'Fruits',
+  gameCatVegetables: 'Vegetables',
+  gameCatColors: 'Colors',
+  gameCatCountries: 'Countries',
+  gameCatKitchen: 'Kitchen Items',
+  gameCatVehicles: 'Vehicles',
+  gameCatBodyParts: 'Body Parts',
+  gameStroop: 'Color Match',
+  gameStroopDesc: 'Test your focus by matching display colors.',
+  gameStroopInstructions: 'A color word will appear in a DIFFERENT color. Tap the button matching the DISPLAY COLOR, not what the word says.',
+  gameStroopTapColor: 'What COLOR is this word displayed in?',
+  gameStroopRound: 'Round {{current}} of {{total}}',
+  gameStroopCorrect: '{{count}} correct out of {{total}}',
+  gameStroopAvgTime: 'Avg. time: {{time}}s',
+  gameStroopResultGreat: 'Excellent focus! Your attention is razor-sharp.',
+  gameStroopResultGood: 'Good concentration! Keep training to get even faster.',
+  gameStroopResultPractice: 'This is a tricky one — practice makes perfect!',
+  gameStroopRed: 'RED',
+  gameStroopBlue: 'BLUE',
+  gameStroopGreen: 'GREEN',
+  gameStroopYellow: 'YELLOW',
+  gameStroopTimeUp: "Time's up!",
+
+  // Settings keys
+  settingsTitle: 'Settings',
+  settingsProfile: 'Profile',
+  settingsName: 'Name',
+  settingsEmail: 'Email',
+  settingsBirthYear: 'Birth Year',
+  settingsFocusAreas: 'Focus Areas',
+  settingsLanguage: 'Language',
+  settingsNotifications: 'Notifications',
+  settingsDailyReminder: 'Daily Reminder',
+  settingsReminderTime: 'Reminder Time',
+  settingsAbout: 'About',
+  settingsAboutText: 'CognitiveCare helps you track and improve your cognitive health through AI-powered voice assessments and daily brain training.',
+  settingsVersion: 'Version {{version}}',
+  settingsResetAll: 'Reset All Data',
+  settingsResetConfirm: 'This will delete all your data including profile and assessments. Are you sure?',
+  settingsResetYes: 'Reset Everything',
+
+  // Services keys
+  servicesBrainScreening: 'Brain Health Screening',
+  servicesBrainScreeningSub: 'United Family Healthcare × Prof. Guo Yi · EEG + rTMS',
+  servicesStandard: 'Standard',
+  servicesStandardDesc: 'EEG Non-invasive Screening',
+  servicesComprehensive: 'Comprehensive',
+  servicesComprehensiveDesc: 'Biomarkers & Imaging Analysis',
+  servicesRecommended: 'Recommended',
+  servicesIncludes: 'Includes all Standard items, plus:',
+  servicesBookConsult: 'Book Consultation',
+  servicesBookConfirmTitle: 'Consultation Request',
+  servicesBookConfirmMsg: 'Your consultation request has been submitted. We will contact you shortly.',
+  servicesNeuroConsult: 'Neurology consult ×2',
+  servicesEEG: 'EEG cognitive risk assessment',
+  servicesMoCA: 'MoCA cognitive assessment',
+  servicesMMSE: 'MMSE mental status exam',
+  servicesPSQI: 'PSQI sleep quality assessment',
+  servicesNeuro11: 'Somatic screening (Neuro-11)',
+  servicesBiomarkers: 'Blood biomarker panel',
+  servicesAmyloid: 'Aβ amyloid protein',
+  servicesMRI: 'Brain MRI',
+  servicesThyroid: 'Thyroid function',
+  servicesOrganFunction: 'Liver & kidney function',
+  servicesBloodPanel: 'CBC / glucose / lipids / B12',
+  servicesPrimeTitle: 'Health Protection',
+  servicesPrimeSub: 'Prosper Health × Allianz',
+  servicesPrimeName: 'Prime',
+  servicesPrimeCoverage: 'Coverage',
+  servicesPrimeDeductible: 'Deductible from',
+  servicesPrimeHospital: 'Hospitalization',
+  servicesPrimeTags: 'VIP Wards|Pre-existing OK|Health Concierge|Fast Track',
+  servicesLearnMore: 'Learn More',
+  servicesPrimeDetailTitle: 'Prime Health Protection',
+  servicesPrimeDetail1: 'Global coverage including hospitalization, specialist outpatient, VIP/International wards',
+  servicesPrimeDetail2: 'Overseas cancer treatment direct billing (up to ¥6M)',
+  servicesPrimeDetail3: 'Pre-existing conditions accepted (6-month stable period)',
+  servicesPrimeDetail4: 'Adult deductible from ¥2,000 only',
+  servicesPrimeDetail5: 'Personal health concierge — 1-on-1 service',
+  servicesPrimeDetail6: 'Fast-track access to top hospitals',
+  servicesContactAdvisor: 'Contact Advisor',
+  servicesAdvisorConfirm: 'An advisor will contact you shortly.',
+  servicesSpecialists: 'Specialist Booking',
+  servicesBookNow: 'Book',
+  servicesDrGuo: 'Prof. Guo Yi',
+  servicesDrGuoSpec: 'Chief Brain Health Expert',
+  servicesDrChen: 'Dr. Chen',
+  servicesDrChenSpec: 'Neurology',
+  servicesDrLi: 'Dr. Li',
+  servicesDrLiSpec: 'Cognitive Rehabilitation',
+
+  // Report sharing + screening keys
+  shareReport: 'Share Report',
+  shareReportTitle: 'CognitiveCare Assessment Report',
+  shareDate: 'Date',
+  shareScore: 'Overall Score',
+  shareRisk: 'Risk Level',
+  shareHighlight: 'Highlight',
+  shareDimensions: 'Dimension Scores',
+  shareRecommendation: 'Recommendation',
+  shareMemory: 'Memory',
+  shareLanguage: 'Language',
+  shareAttention: 'Attention',
+  shareExecutive: 'Executive',
+  cognitiveGamesDesc: 'Train memory, language, and attention through fun games.',
+};
+
+const zh: typeof en = {
+  // Common
+  continue: '继续',
+  cancel: '取消',
+  reset: '重置',
+  tryAgain: '重试',
+
+  // Auth – Signup
+  welcomeTitle: '欢迎使用\nCognitiveCare',
+  welcomeSubtitle: '您的私人认知健康伙伴。让我们来了解您。',
+  yourName: '您的姓名',
+  namePlaceholder: '张三',
+  email: '电子邮箱',
+  emailPlaceholder: 'zhangsan@example.com',
+  getStarted: '开始使用',
+  dataPrivacy: '您的数据仅存储在本地设备上。',
+
+  // Auth – Birth year
+  birthYearTitle: '您的出生年份是？',
+  birthYearSubtitle: '这有助于我们为您定制认知基准。',
+  age: '{{age}}岁',
+
+  // Auth – Focus
+  focusTitle: '什么对您最重要？',
+  focusSubtitle: '选择您想要加强的方面，可多选。',
+  focusMemory: '记忆力',
+  focusMemoryDesc: '记住名字、日期和日常事务',
+  focusLanguage: '语言能力',
+  focusLanguageDesc: '准确地遣词用句',
+  focusAttention: '注意力',
+  focusAttentionDesc: '保持专注',
+  focusSleep: '睡眠',
+  focusSleepDesc: '休息与恢复',
+  focusSocial: '社交活动',
+  focusSocialDesc: '与家人朋友保持联系',
+
+  // Auth – Ready
+  readyTitle: '一切就绪，\n{{name}}。',
+  readySubtitle: '让我们通过60秒的语音测试建立您的认知基准。',
+  startFirstCheckIn: '开始我的首次测试',
+  howItWorks: '使用说明',
+  howItWorksBody: '您将看到一个简单的提示。请自然地说出您想到的任何内容，大约一分钟。',
+  speakNormal: '用您正常的语速说话',
+  noWrongAnswers: '没有标准答案',
+  recordingPrivate: '您的录音将完全保密',
+
+  // Tabs
+  tabHome: '首页',
+  tabScreening: '筛查',
+  tabTraining: '训练',
+  tabReports: '报告',
+  tabServices: '服务',
+
+  // Home
+  headerCognitiveCare: 'CognitiveCare',
+  greetingMorning: '早上好',
+  greetingAfternoon: '下午好',
+  greetingEvening: '晚上好',
+  statusCheckIn: '是时候进行今天的测试了，只需60秒。',
+  statusGreatWork: '今天做得很好！您的大脑一直很活跃。',
+  statusBaseline: '让我们通过快速测试建立您的基准。',
+  dailyVitality: '每日活力',
+  optimumRange: '最佳状态',
+  goodRange: '良好状态',
+  building: '提升中',
+  badgeToday: '今日',
+  badgeNextActivity: '下一项活动',
+  dailyCheckIn: '每日测试',
+  extraAssessment: '额外评估',
+  voiceCheckDesc: '语音认知检测 — 60秒',
+  startNow: '立即开始',
+  doAnother: '再做一次',
+  tipsForYou: '为您推荐',
+  cognitiveTips: '认知小贴士',
+  viewAll: '查看全部',
+  weeklyStreak: '本周连续',
+  day_one: '天',
+  day_other: '天',
+  assessments: '评估次数',
+  loadDemoData: '加载演示数据',
+  resetDemo: '重置演示',
+  resetDemoTitle: '重置演示？',
+  resetDemoMsg: '这将删除您的个人资料和评估历史，以便重新注册。',
+  demoDataLoaded: '演示数据已加载',
+  demoDataLoadedMsg: 'Margaret Chen的资料及10次评估记录已加载。',
+
+  // Tips
+  tipBlueberriesTitle: '蓝莓的力量',
+  tipBlueberriesBody: '浆果中的抗氧化物可能延缓大脑衰老并改善记忆力。',
+  tipStoriesTitle: '讲故事增强记忆',
+  tipStoriesBody: '大声讲述记忆可以增强回忆通路。',
+  tipReadAloudTitle: '大声朗读',
+  tipReadAloudBody: '每天朗读10分钟可保持词汇检索的敏锐度。',
+  tipNameThingsTitle: '说出三样东西',
+  tipNameThingsBody: '停下来说出所见之物可提升词汇流畅度。',
+  tipSingleTaskTitle: '专注时间段',
+  tipSingleTaskBody: '以25分钟为一个时间段集中注意力进行训练。',
+  tipBreathTitle: '4-7-8 呼吸法',
+  tipBreathBody: '简短的呼吸练习可在一分钟内恢复注意力。',
+  tipSleepTitle: '睡眠与整合',
+  tipSleepBody: '7小时的休息有助于大脑排出毒素并巩固记忆。',
+  tipDimTitle: '黄昏调暗灯光',
+  tipDimBody: '睡前60分钟降低灯光亮度有助于深度睡眠。',
+  tipCallTitle: '今天给人打个电话',
+  tipCallBody: '10分钟的对话可以锻炼多个认知网络。',
+  tipMealTitle: '共进一餐',
+  tipMealBody: '与他人共餐有助于改善记忆力和情绪。',
+
+  // Screening
+  headerScreening: 'AI 筛查',
+  statusOverview: '状态概览',
+  lastScreened: '上次筛查：',
+  daysNever: '尚未筛查 — 开始您的第一次',
+  daysToday: '今天',
+  daysYesterday: '昨天',
+  daysAgo: '{{days}}天前',
+  completeFirstTrend: '完成首次评估以查看趋势',
+  scoreChange: '评分变化：较上次{{sign}}{{delta}}',
+  baselineScore: '基准评分：{{score}}',
+  readyToStart: '准备好了吗？',
+  voiceAssessment: '语音评估',
+  voiceAssessmentDesc: '自然说话60秒。我们的AI可检测细微的语言变化和语音模式。',
+  startRecording: '开始录音',
+  cognitiveGames: '认知游戏',
+  comingSoon: '即将推出',
+  dataDisclaimer: '所有数据均已加密，仅用于您的个性化健康分析。结果不构成诊断。',
+
+  // Training
+  headerTraining: '我的训练计划',
+  keepMomentum: '保持势头！',
+  trainingSubtitle: '完成语言流利度模块以达成每日目标。',
+  activeModules: '进行中的模块',
+  memoryBoost: '记忆提升',
+  completedToday: '今日已完成',
+  languageFluency: '语言流利度',
+  vocabRecall: '重点：词汇与回忆',
+  fiveMins: '5 分钟',
+  startSession: '开始训练',
+  focusTraining: '注意力训练',
+  availableIn2Hours: '2小时后可用',
+  recentAchievements: '近期成就',
+  sevenDayStreak: '连续7天',
+  consistencyKing: '坚持之王',
+  memoryMaster: '记忆大师',
+  level5Reached: '达到5级',
+
+  // Reports
+  headerReports: '健康报告',
+  noReportsYet: '暂无报告',
+  noReportsDesc: '完成首次语音测试后，即可在此查看您的个性化认知报告。',
+  startFirstCheckInBtn: '开始首次测试',
+  currentStatus: '当前状态',
+  stableHealthy: '稳定健康',
+  worthWatching: '需要关注',
+  worthDiscussing: '值得咨询',
+  clarityScore: '{{name}}的清晰度评分',
+  basedOnAssessments_one: '基于{{count}}次评估',
+  basedOnAssessments_other: '基于{{count}}次评估',
+  trend: '趋势',
+  checkInsTrending: '{{count}}次测试，呈{{direction}}趋势。',
+  trendUp: '上升',
+  trendDown: '下降',
+  riskLow: '低风险',
+  riskModerate: '中等风险',
+  riskElevated: '较高风险',
+  recommendationFor: '给{{name}}的建议',
+  allAssessments: '所有评估',
+
+  // Services
+  headerServices: '关怀服务',
+  eliteMembership: '尊享会员',
+  familyPlus: 'CognitiveCare 家庭尊享版',
+  familyPlusDesc: '为最多4位家庭成员提供全面的认知支持，包括每月健康审查和全天候专家咨询。',
+  conciergeSpecialist: '专属管家式专家',
+  homeVisit: '上门健康筛查',
+  upgradePrice: '每月¥349升级',
+  bookSpecialist: '预约专家',
+  specialistsDesc: '本周可预约的顶级认知健康专家。',
+  drChen: '陈明哲 医生',
+  drChenRole: '神经精神科医生',
+  drJenkins: '张慧琳 医生',
+  drJenkinsRole: '认知治疗师',
+  drMiller: '李伟明 医生',
+  drMillerRole: '老年病专家',
+  bookNow: '立即预约',
+  insurancePlans: '保险方案',
+  insuranceDesc: '根据您最新的认知筛查结果定制的保障方案。',
+  recommended: '推荐',
+  basic: '基础',
+  planPlusTitle: '认知关怀增强版',
+  planPlusPrice: '¥629/月',
+  planPlusDesc: '涵盖诊断、专家咨询和记忆康复工具的全面保障。',
+  planPlusPerk1: '100%诊断费用覆盖',
+  planPlusPerk2: '无限远程医疗咨询',
+  planBasicTitle: '基础保障',
+  planBasicPrice: '¥249/月',
+  planBasicDesc: '年度体检和基本认知筛查的基础保障。',
+  planBasicPerk1: '年度表现评估',
+  planBasicPerk2: '药房折扣',
+  viewCoverage: '查看保障详情',
+
+  // Recording
+  firstCheckInHeader: '首次测试',
+  voiceAssessmentHeader: '语音评估',
+  firstPromptLabel: '您好 {{name}}，这是您的第一个提示',
+  yourPrompt: '您的提示',
+  speakNaturally: '请自然地说话。慢慢来，没有标准答案。',
+  tapToStart: '点击开始录音',
+  listeningTap: '正在聆听…点击提前结束',
+  preparingAssessment: '正在准备您的评估…',
+  micNeeded: '需要麦克风权限',
+  micNeededMsg: '请在设置中启用麦克风访问权限。',
+  couldNotStart: '无法开始录音',
+  couldNotStop: '无法停止录音',
+  promptMemory: '告诉我这周让您微笑的一段回忆。',
+  promptLanguage: '描述一下您最喜欢的一道菜——它有什么食材，为什么喜欢它。',
+  promptAttention: '请一步步地描述您的早晨日常。',
+  promptSleep: '描述一下您昨晚的睡眠情况和现在的感受。',
+  promptSocial: '告诉我您最近和谁聊过天。',
+  promptDefault: '跟我说说您的早晨——做了什么、吃了什么、有什么想法。',
+
+  // Analyzing
+  stepTranscribing: '正在转录您的语音…',
+  stepAnalyzing: '正在分析词汇和节奏…',
+  stepGenerating: '正在生成分析…',
+  somethingWrong: '出现了问题',
+  wordMemory: '记忆',
+  wordClarity: '清晰',
+  wordVocabulary: '词汇',
+  wordRhythm: '节奏',
+  wordFluency: '流畅',
+  wordCoherence: '连贯',
+  wordRecall: '回忆',
+  wordExpression: '表达',
+  wordAttention: '注意',
+  wordNarrative: '叙事',
+  wordStructure: '结构',
+  wordTemporal: '时序',
+  wordNaming: '命名',
+  wordSequencing: '排序',
+  wordReasoning: '推理',
+
+  // Report
+  yourReport: '您的报告',
+  todaysInsight: '今日洞察',
+  overall: '总体',
+  basedOnVoiceSample: '基于您60秒的语音样本。',
+  dimensions: '维度分析',
+  dimMemory: '记忆力',
+  dimLanguage: '语言能力',
+  dimAttention: '注意力',
+  dimExecutive: '执行功能',
+  wordsYouUsed: '您使用的词汇',
+  aiAnalysis: 'AI 分析',
+  recommendations: '建议',
+  yourWords: '您的原话',
+  takeAnother: '再做一次评估',
+  noReportAvailable: '暂无报告。请开始新的评估。',
+  startAssessment: '开始评估',
+
+  // AudioWaveform
+  aiListening: 'AI 正在聆听...',
+
+  // Profile
+  defaultName: '您',
+
+  // Tip cards
+  tipHomeTitle: '每日签到',
+  tipHomeBody: '每天一次语音评估，帮助追踪您的认知健康趋势。',
+  tipTrainingTitle: '为什么要每日训练？',
+  tipTrainingBody: '每日训练帮助保持大脑活力。完成三项练习，持续锻炼认知能力。',
+  tipScreeningTitle: '语音评估',
+  tipScreeningBody: '语音评估通过AI分析您的表达，帮助了解记忆、语言和注意力状况。',
+  tipServicesTitle: '专业服务',
+  tipServicesBody: '结合AI筛查与专业医疗资源，为您提供从早筛到干预的全流程服务。',
+  tipReportsTitle: '您的进展',
+  tipReportsBody: '这里展示您所有的评估记录和趋势变化，帮助您了解长期认知健康状况。',
+  tipShowTips: '显示提示',
+
+  // Training hub + game keys
+  trainingDailyGoal: '每日目标',
+  trainingCompleted: '已完成',
+  trainingXOfY: '{{done}} / {{total}}',
+  trainingStartGame: '开始',
+  trainingCompletedToday: '已完成 ✓',
+  gameCardFlip: '记忆配对',
+  gameCardFlipDesc: '找到配对的卡片，锻炼视觉记忆力。',
+  gameCardFlipInstructions: '点击卡片翻转，找到所有配对！',
+  gameCardFlipMoves: '步数',
+  gameCardFlipTime: '用时',
+  gameCardFlipComplete: '记忆力超棒！',
+  gameCardFlipStars3: '完美——用最少的步数找到了所有配对！',
+  gameCardFlipStars2: '很棒——您的记忆力很敏锐！',
+  gameCardFlipStars1: '不错的尝试——继续练习会更好！',
+  gamePlayAgain: '再玩一次',
+  gameBackToTraining: '返回训练',
+  gameCategoryFluency: '词语流畅',
+  gameCategoryFluencyDesc: '在限定类别中说出尽可能多的词。',
+  gameCategoryFluencyInstructions: '输入属于该类别的词语，限时60秒！',
+  gameCategoryFluencyPlaceholder: '输入词语...',
+  gameCategoryFluencyAdd: '添加',
+  gameCategoryFluencyDuplicate: '已经添加过了！',
+  gameCategoryFluencyExcellent: '出色的流畅性！您的词汇回忆能力令人印象深刻。',
+  gameCategoryFluencyGood: '做得好！您的词汇回忆能力不错。',
+  gameCategoryFluencyPractice: '继续练习——每次都会更容易！',
+  gameCategoryFluencyWords: '{{count}} 个词',
+  gameCatAnimals: '动物',
+  gameCatFruits: '水果',
+  gameCatVegetables: '蔬菜',
+  gameCatColors: '颜色',
+  gameCatCountries: '国家',
+  gameCatKitchen: '厨房用品',
+  gameCatVehicles: '交通工具',
+  gameCatBodyParts: '身体部位',
+  gameStroop: '颜色匹配',
+  gameStroopDesc: '通过辨别显示颜色来测试专注力。',
+  gameStroopInstructions: '屏幕会显示一个颜色词，但它的显示颜色不同。请点击与显示颜色一致的按钮，而不是文字内容。',
+  gameStroopTapColor: '这个字是什么颜色显示的？',
+  gameStroopRound: '第 {{current}} 轮，共 {{total}} 轮',
+  gameStroopCorrect: '{{total}} 题中答对 {{count}} 题',
+  gameStroopAvgTime: '平均用时：{{time}}秒',
+  gameStroopResultGreat: '出色的专注力！您的注意力非常敏锐。',
+  gameStroopResultGood: '不错的专注力！继续训练会更快。',
+  gameStroopResultPractice: '这个很有挑战性——多练习就会进步！',
+  gameStroopRed: '红',
+  gameStroopBlue: '蓝',
+  gameStroopGreen: '绿',
+  gameStroopYellow: '黄',
+  gameStroopTimeUp: '时间到！',
+
+  // Settings keys
+  settingsTitle: '设置',
+  settingsProfile: '个人资料',
+  settingsName: '姓名',
+  settingsEmail: '邮箱',
+  settingsBirthYear: '出生年份',
+  settingsFocusAreas: '关注领域',
+  settingsLanguage: '语言',
+  settingsNotifications: '通知',
+  settingsDailyReminder: '每日提醒',
+  settingsReminderTime: '提醒时间',
+  settingsAbout: '关于',
+  settingsAboutText: 'CognitiveCare 通过AI语音评估和每日大脑训练，帮助您追踪和改善认知健康。',
+  settingsVersion: '版本 {{version}}',
+  settingsResetAll: '重置所有数据',
+  settingsResetConfirm: '这将删除您的所有数据，包括个人资料和评估记录。确定要继续吗？',
+  settingsResetYes: '重置所有',
+
+  // Services keys
+  servicesBrainScreening: '脑健康筛查',
+  servicesBrainScreeningSub: '和睦家医疗 × 郭毅教授团队 · EEG + rTMS 技术',
+  servicesStandard: '标准版',
+  servicesStandardDesc: '脑电图无创初筛',
+  servicesComprehensive: '综合版',
+  servicesComprehensiveDesc: '生物标志物与功能影像学综合检查',
+  servicesRecommended: '推荐',
+  servicesIncludes: '包含标准版全部项目，另加：',
+  servicesBookConsult: '预约咨询',
+  servicesBookConfirmTitle: '预约确认',
+  servicesBookConfirmMsg: '您的预约咨询请求已提交，我们会尽快与您联系。',
+  servicesNeuroConsult: '神经内科问诊×2（首诊+复诊）',
+  servicesEEG: 'EEG脑电图认知风险评估',
+  servicesMoCA: 'MoCA蒙特利尔认知评估量表',
+  servicesMMSE: 'MMSE简易精神状态检查量表',
+  servicesPSQI: 'PSQI睡眠质量评估',
+  servicesNeuro11: '躯体形式障碍筛查 (Neuro-11)',
+  servicesBiomarkers: '血液标志物检测 (P-Tau217, GFAP, NfL)',
+  servicesAmyloid: 'Aβ淀粉样蛋白 (Aβ-42, Aβ-40)',
+  servicesMRI: '颅脑MRI (SWI序列、冠状位海马相)',
+  servicesThyroid: '甲状腺功能',
+  servicesOrganFunction: '肝功能 / 肾功能',
+  servicesBloodPanel: '血常规 / 血糖 / 血脂 / 铁蛋白 / 维生素B12',
+  servicesPrimeTitle: '健康保障',
+  servicesPrimeSub: '万欣和 Prosper Health × 京东安联 Allianz',
+  servicesPrimeName: 'Prime',
+  servicesPrimeCoverage: '住院保障',
+  servicesPrimeDeductible: '免赔额低至',
+  servicesPrimeHospital: '住院保障',
+  servicesPrimeTags: '特需/VIP部|既往症可投|私人健康管家|绿色通道',
+  servicesLearnMore: '了解更多',
+  servicesPrimeDetailTitle: '和睦致逸 高端医疗保险',
+  servicesPrimeDetail1: '保障覆盖全球，包含住院医疗、特定门诊、特需部/国际部/VIP部就诊',
+  servicesPrimeDetail2: '恶性肿瘤海外就医直付（最高600万）',
+  servicesPrimeDetail3: '既往症6个月稳定期可投保',
+  servicesPrimeDetail4: '成人免赔额仅¥2,000',
+  servicesPrimeDetail5: '私人健康管家一对一服务',
+  servicesPrimeDetail6: '权威医疗机构绿色通道',
+  servicesContactAdvisor: '咨询顾问',
+  servicesAdvisorConfirm: '顾问会尽快与您联系。',
+  servicesSpecialists: '专家预约',
+  servicesBookNow: '预约',
+  servicesDrGuo: '郭毅 教授',
+  servicesDrGuoSpec: '脑健康首席专家',
+  servicesDrChen: '陈医生',
+  servicesDrChenSpec: '神经内科',
+  servicesDrLi: '李医生',
+  servicesDrLiSpec: '认知康复',
+
+  // Report sharing + screening keys
+  shareReport: '分享报告',
+  shareReportTitle: 'CognitiveCare 认知评估报告',
+  shareDate: '日期',
+  shareScore: '综合评分',
+  shareRisk: '风险等级',
+  shareHighlight: '亮点',
+  shareDimensions: '维度评分',
+  shareRecommendation: '建议',
+  shareMemory: '记忆力',
+  shareLanguage: '语言能力',
+  shareAttention: '注意力',
+  shareExecutive: '执行功能',
+  cognitiveGamesDesc: '通过趣味游戏锻炼记忆力、语言和注意力。',
+};
+
+// ---------------------------------------------------------------------------
+// Translation engine
+// ---------------------------------------------------------------------------
+
+type TranslationKeys = keyof typeof en;
+
+function interpolate(text: string, vars?: Record<string, string | number>): string {
+  if (!vars) return text;
+  let result = text;
+  for (const [k, v] of Object.entries(vars)) {
+    result = result.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
+  }
+  return result;
+}
+
+const dicts: Record<Locale, Record<string, string>> = { en, zh };
+
+function translate(locale: Locale, key: TranslationKeys, vars?: Record<string, string | number>): string {
+  const text = dicts[locale][key] ?? dicts.en[key] ?? key;
+  return interpolate(text, vars);
+}
+
+// ---------------------------------------------------------------------------
+// React context
+// ---------------------------------------------------------------------------
+
+type I18nContextType = {
+  locale: Locale;
+  setLocale: (l: Locale) => void;
+  t: (key: TranslationKeys, vars?: Record<string, string | number>) => string;
+};
+
+const I18nContext = createContext<I18nContextType>({
+  locale: 'en',
+  setLocale: () => {},
+  t: (key) => String(key),
+});
+
+export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>('en');
+
+  useEffect(() => {
+    AsyncStorage.getItem(K_LOCALE).then((v) => {
+      if (v === 'zh' || v === 'en') setLocaleState(v);
+    });
+  }, []);
+
+  const setLocale = useCallback((l: Locale) => {
+    setLocaleState(l);
+    AsyncStorage.setItem(K_LOCALE, l);
+  }, []);
+
+  const t = useCallback(
+    (key: TranslationKeys, vars?: Record<string, string | number>) => translate(locale, key, vars),
+    [locale],
+  );
+
+  return (
+    <I18nContext.Provider value={{ locale, setLocale, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useTranslation() {
+  return useContext(I18nContext);
+}
+
+// Localized greeting helper
+export function localizedGreeting(locale: Locale): string {
+  const h = new Date().getHours();
+  const dict = dicts[locale];
+  if (h < 5) return dict.greetingEvening;
+  if (h < 12) return dict.greetingMorning;
+  if (h < 18) return dict.greetingAfternoon;
+  return dict.greetingEvening;
+}
+
+// Localized date formatting
+export function localizedDate(iso: string, locale: Locale): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+export function localizedTime(iso: string, locale: Locale): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
