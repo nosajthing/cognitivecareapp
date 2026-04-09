@@ -3,7 +3,7 @@ import { View, Text, Pressable, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { colors, type, radius } from '../../lib/theme';
+import { colors, type, radius, spacing, shadow } from '../../lib/theme';
 import { useTranslation } from '../../lib/i18n';
 import { completeTraining } from '../../lib/profileStore';
 
@@ -192,14 +192,14 @@ export default function CardFlipGame() {
               ...type.headlineLg,
               color: colors.onSurface,
               textAlign: 'center',
-              marginBottom: 8,
+              marginBottom: spacing.sm,
             }}
           >
             {t('gameCardFlipComplete' as any)}
           </Text>
 
           {/* Star display */}
-          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
             {[1, 2, 3].map((star) => (
               <Text key={star} style={{ fontSize: 36 }}>
                 {star <= stars ? '★' : '☆'}
@@ -211,8 +211,8 @@ export default function CardFlipGame() {
           <View
             style={{
               flexDirection: 'row',
-              gap: 32,
-              marginBottom: 20,
+              gap: spacing.xl,
+              marginBottom: spacing.lg,
             }}
           >
             <View style={{ alignItems: 'center' }}>
@@ -237,8 +237,8 @@ export default function CardFlipGame() {
               ...type.bodyLg,
               color: colors.onSurfaceVariant,
               textAlign: 'center',
-              marginBottom: 40,
-              paddingHorizontal: 8,
+              marginBottom: spacing.xxl,
+              paddingHorizontal: spacing.sm,
             }}
           >
             {t(messageKey as any)}
@@ -250,14 +250,14 @@ export default function CardFlipGame() {
             style={{
               backgroundColor: colors.primary,
               borderRadius: radius.full,
-              paddingHorizontal: 32,
-              paddingVertical: 14,
-              marginBottom: 14,
+              paddingHorizontal: spacing.xl,
+              paddingVertical: spacing.md,
+              marginBottom: spacing.md,
               width: '100%',
               alignItems: 'center',
             }}
           >
-            <Text style={{ ...type.labelLg, color: '#fff', fontSize: 16 }}>
+            <Text style={{ ...type.titleLg, color: colors.onPrimary }}>
               {t('gamePlayAgain' as any)}
             </Text>
           </Pressable>
@@ -265,16 +265,15 @@ export default function CardFlipGame() {
           <Pressable
             onPress={() => router.back()}
             style={{
-              borderWidth: 1.5,
-              borderColor: colors.primary,
+              backgroundColor: colors.surfaceContainerHigh,
               borderRadius: radius.full,
-              paddingHorizontal: 32,
-              paddingVertical: 14,
+              paddingHorizontal: spacing.xl,
+              paddingVertical: spacing.md,
               width: '100%',
               alignItems: 'center',
             }}
           >
-            <Text style={{ ...type.labelLg, color: colors.primary, fontSize: 16 }}>
+            <Text style={{ ...type.titleLg, color: colors.onSurface }}>
               {t('gameBackToTraining' as any)}
             </Text>
           </Pressable>
@@ -294,19 +293,18 @@ export default function CardFlipGame() {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingTop: 8,
-          paddingBottom: 4,
+          paddingHorizontal: spacing.md,
+          paddingVertical: spacing.sm,
         }}
       >
         <Pressable
           onPress={() => router.back()}
-          style={{ padding: 8, marginRight: 8 }}
+          style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}
           hitSlop={8}
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </Pressable>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, marginLeft: spacing.sm }}>
           <Text style={{ ...type.headlineSm, color: colors.onSurface }}>
             {t('gameCardFlip' as any)}
           </Text>
@@ -321,8 +319,8 @@ export default function CardFlipGame() {
         style={{
           flexDirection: 'row',
           justifyContent: 'center',
-          gap: 48,
-          paddingVertical: 12,
+          gap: spacing.xxl,
+          paddingVertical: spacing.md,
         }}
       >
         <View style={{ alignItems: 'center' }}>
@@ -345,7 +343,7 @@ export default function CardFlipGame() {
       <View
         style={{
           flex: 1,
-          padding: 16,
+          padding: spacing.md,
           justifyContent: 'center',
         }}
       >
@@ -353,7 +351,7 @@ export default function CardFlipGame() {
           style={{
             flexDirection: 'row',
             flexWrap: 'wrap',
-            gap: 10,
+            gap: spacing.sm,
             justifyContent: 'center',
           }}
         >
@@ -418,11 +416,11 @@ export default function CardFlipGame() {
                     width: CARD_SIZE,
                     height: CARD_SIZE,
                     borderRadius: radius.md,
-                    backgroundColor: card.matched ? '#C8E6C9' : '#ffffff',
+                    backgroundColor: card.matched ? colors.secondaryContainer : colors.surfaceContainerLowest,
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderWidth: card.matched ? 2 : 1,
-                    borderColor: card.matched ? '#4CAF50' : colors.outlineVariant,
+                    borderColor: card.matched ? colors.secondary : colors.outlineVariant,
                     transform: [{ rotateY: frontRotate }],
                     opacity: frontOpacity,
                     backfaceVisibility: 'hidden',

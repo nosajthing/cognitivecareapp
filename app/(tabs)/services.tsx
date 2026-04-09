@@ -1,409 +1,300 @@
-import React from 'react';
-import { ScrollView, View, Text, Pressable, Alert } from 'react-native';
+import React, { useRef } from 'react';
+import { ScrollView, View, Text, Pressable, StyleSheet, Dimensions, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, type, radius, shadow } from '../../lib/theme';
+import { useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import { colors, type as typ, radius, shadow, spacing } from '../../lib/theme';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { TipCard, TipRestoreButton } from '../../components/TipCard';
 import { useTranslation } from '../../lib/i18n';
+import { getServicesByCategory, type ServiceItem } from '../../lib/servicesData';
 
-const standardItems: string[] = [
-  'servicesNeuroConsult',
-  'servicesEEG',
-  'servicesMoCA',
-  'servicesMMSE',
-  'servicesPSQI',
-  'servicesNeuro11',
-];
-
-const comprehensiveItems = [
-  'servicesBiomarkers',
-  'servicesAmyloid',
-  'servicesMRI',
-  'servicesThyroid',
-  'servicesOrganFunction',
-  'servicesBloodPanel',
-] as const;
-
-const doctors = [
-  { nameKey: 'servicesDrGuo', specKey: 'servicesDrGuoSpec', color: '#E3F2FD', emoji: '👨‍⚕️' },
-  { nameKey: 'servicesDrChen', specKey: 'servicesDrChenSpec', color: '#FFF3E0', emoji: '👩‍⚕️' },
-  { nameKey: 'servicesDrLi', specKey: 'servicesDrLiSpec', color: '#F3E5F5', emoji: '👨‍⚕️' },
-] as const;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CARD_MARGIN = spacing.lg;
+const CARD_WIDTH = SCREEN_WIDTH - CARD_MARGIN * 2;
 
 export default function Services() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const router = useRouter();
+  const loc = locale as 'en' | 'zh';
 
-  function handleBookConsult() {
-    Alert.alert(t('servicesBookConfirmTitle' as any), t('servicesBookConfirmMsg' as any));
+  const insurance = getServicesByCategory('insurance');
+  const doctors = getServicesByCategory('doctor');
+
+  const featuredScreeningId = 'screening-comprehensive';
+  const featuredInsurance = insurance[0];
+
+  function navigateTo(id: string) {
+    router.push(`/services/${id}`);
   }
-
-  function handleLearnMore() {
-    const details = [
-      t('servicesPrimeDetail1' as any),
-      t('servicesPrimeDetail2' as any),
-      t('servicesPrimeDetail3' as any),
-      t('servicesPrimeDetail4' as any),
-      t('servicesPrimeDetail5' as any),
-      t('servicesPrimeDetail6' as any),
-    ].join('\n\n');
-    Alert.alert(t('servicesPrimeDetailTitle' as any), details, [
-      {
-        text: t('servicesContactAdvisor' as any),
-        onPress: () => Alert.alert(t('servicesContactAdvisor' as any), t('servicesAdvisorConfirm' as any)),
-      },
-      { text: t('cancel' as any), style: 'cancel' },
-    ]);
-  }
-
-  function handleBookDoctor(name: string) {
-    Alert.alert(t('servicesBookConfirmTitle' as any), `${name} — ${t('servicesBookConfirmMsg' as any)}`);
-  }
-
-  const primeTags = (t('servicesPrimeTags' as any) as string).split('|');
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScreenHeader title={t('tabServices' as any)} />
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 32 }}
+        contentContainerStyle={{ paddingBottom: 120, gap: spacing.xl }}
         showsVerticalScrollIndicator={false}
       >
-        {/* TipCard */}
-        <TipCard
-          tipId="services_intro"
-          icon="💡"
-          titleKey="tipServicesTitle"
-          bodyKey="tipServicesBody"
-        />
-
         {/* ── Brain Health Screening ── */}
-        <View style={{ gap: 16 }}>
-          <View>
-            <Text style={{ ...type.headlineMd, color: colors.primary }}>
-              {t('servicesBrainScreening' as any)}
-            </Text>
-            <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant, marginTop: 4 }}>
-              {t('servicesBrainScreeningSub' as any)}
-            </Text>
-          </View>
-
-          {/* Standard Package */}
-          <View
-            style={{
-              borderRadius: radius.xl,
-              overflow: 'hidden',
-              backgroundColor: colors.surfaceContainerLowest,
-              ...shadow.soft,
-            }}
-          >
-            {/* Package header */}
-            <View style={{ backgroundColor: '#0d8c7f', padding: 20 }}>
-              <Text style={{ ...type.headlineSm, color: '#fff' }}>
-                {t('servicesStandard' as any)}
-              </Text>
-              <Text style={{ ...type.bodyMd, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                {t('servicesStandardDesc' as any)}
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12 }}>
-                <Text
-                  style={{
-                    ...type.bodyMd,
-                    color: 'rgba(255,255,255,0.55)',
-                    textDecorationLine: 'line-through',
-                  }}
-                >
-                  ¥2,500
-                </Text>
-                <Text style={{ ...type.headlineMd, color: '#fff', fontWeight: '800' }}>¥1,880</Text>
-              </View>
-            </View>
-
-            {/* Checklist */}
-            <View style={{ padding: 20, gap: 10 }}>
-              {standardItems.map((key) => (
-                <View key={key} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-                  <Text style={{ color: '#0d8c7f', fontWeight: '700', fontSize: 14, lineHeight: 20 }}>✓</Text>
-                  <Text style={{ ...type.bodyMd, color: colors.onSurface, flex: 1 }}>
-                    {t(key as any)}
-                  </Text>
-                </View>
-              ))}
-
-              <Pressable
-                onPress={handleBookConsult}
-                style={({ pressed }) => ({
-                  marginTop: 8,
-                  backgroundColor: '#0d8c7f',
-                  borderRadius: radius.md,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                  opacity: pressed ? 0.85 : 1,
-                })}
-              >
-                <Text style={{ ...type.labelLg, color: '#fff', fontSize: 14 }}>
-                  {t('servicesBookConsult' as any)}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Comprehensive Package */}
-          <View
-            style={{
-              borderRadius: radius.xl,
-              overflow: 'hidden',
-              backgroundColor: colors.surfaceContainerLowest,
-              ...shadow.soft,
-            }}
-          >
-            {/* Recommended badge */}
-            <View style={{ backgroundColor: '#004D40', padding: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <View>
-                  <Text style={{ ...type.headlineSm, color: '#fff' }}>
-                    {t('servicesComprehensive' as any)}
-                  </Text>
-                  <Text style={{ ...type.bodyMd, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                    {t('servicesComprehensiveDesc' as any)}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    backgroundColor: '#FFB300',
-                    borderRadius: radius.full,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                  }}
-                >
-                  <Text style={{ ...type.labelMd, color: '#fff', fontSize: 11 }}>推荐</Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12 }}>
-                <Text
-                  style={{
-                    ...type.bodyMd,
-                    color: 'rgba(255,255,255,0.55)',
-                    textDecorationLine: 'line-through',
-                  }}
-                >
-                  ¥11,000
-                </Text>
-                <Text style={{ ...type.headlineMd, color: '#fff', fontWeight: '800' }}>¥7,800</Text>
-              </View>
-            </View>
-
-            {/* Checklist */}
-            <View style={{ padding: 20, gap: 10 }}>
-              <Text style={{ ...type.labelLg, color: colors.onSurfaceVariant, marginBottom: 4 }}>
-                {t('servicesIncludes' as any)}
-              </Text>
-              {comprehensiveItems.map((key) => (
-                <View key={key} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-                  <Text style={{ color: '#004D40', fontWeight: '700', fontSize: 14, lineHeight: 20 }}>✓</Text>
-                  <Text style={{ ...type.bodyMd, color: colors.onSurface, flex: 1 }}>
-                    {t(key as any)}
-                  </Text>
-                </View>
-              ))}
-
-              <Pressable
-                onPress={handleBookConsult}
-                style={({ pressed }) => ({
-                  marginTop: 8,
-                  backgroundColor: colors.primary,
-                  borderRadius: radius.md,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                  opacity: pressed ? 0.85 : 1,
-                })}
-              >
-                <Text style={{ ...type.labelLg, color: '#fff', fontSize: 14 }}>
-                  {t('servicesBookConsult' as any)}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
+        <View style={{ paddingHorizontal: CARD_MARGIN, gap: spacing.md }}>
+          <Section
+            title={t('servicesBrainScreening' as any)}
+            subtitle={loc === 'zh'
+              ? '早期发现认知风险，抓住黄金干预窗口期。专业EEG脑电与影像学筛查，让您安心了解大脑健康状况。'
+              : 'Detect cognitive risks early and seize the golden intervention window. Professional EEG and imaging screening for peace of mind about your brain health.'}
+          />
+          <ProductCard
+            item={getServicesByCategory('screening').find((s) => s.id === featuredScreeningId)!}
+            locale={loc}
+            icon="biotech"
+            onPress={() => navigateTo(featuredScreeningId)}
+          />
         </View>
 
-        {/* ── Prime Insurance Card ── */}
-        <View
-          style={{
-            backgroundColor: '#1A237E',
-            borderRadius: radius.xl,
-            padding: 24,
-            gap: 16,
-            ...shadow.card,
-          }}
-        >
-          {/* Header row */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ ...type.labelLg, color: 'rgba(255,255,255,0.7)', letterSpacing: 0.5 }}>
-              {t('servicesPrimeTitle' as any)}
-            </Text>
-            <View
-              style={{
-                backgroundColor: '#FFB300',
-                borderRadius: radius.full,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-              }}
-            >
-              <Text style={{ ...type.labelMd, color: '#fff' }}>Prime</Text>
-            </View>
-          </View>
-
-          {/* Product name */}
-          <Text style={{ ...type.headlineMd, color: '#fff' }}>和睦致逸</Text>
-
-          {/* Stat boxes */}
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'rgba(255,255,255,0.12)',
-                borderRadius: radius.md,
-                padding: 14,
-                alignItems: 'center',
-                gap: 4,
-              }}
-            >
-              <Text style={{ ...type.labelMd, color: 'rgba(255,255,255,0.65)' }}>
-                {t('servicesPrimeCoverage' as any)}
-              </Text>
-              <Text style={{ ...type.titleLg, color: '#fff' }}>800万</Text>
-            </View>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'rgba(255,255,255,0.12)',
-                borderRadius: radius.md,
-                padding: 14,
-                alignItems: 'center',
-                gap: 4,
-              }}
-            >
-              <Text style={{ ...type.labelMd, color: 'rgba(255,255,255,0.65)' }}>
-                {t('servicesPrimeDeductible' as any)}
-              </Text>
-              <Text style={{ ...type.titleLg, color: '#fff' }}>¥2,000</Text>
-            </View>
-          </View>
-
-          {/* Tag pills */}
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {primeTags.map((tag) => (
-              <View
-                key={tag}
-                style={{
-                  backgroundColor: 'rgba(255,255,255,0.15)',
-                  borderRadius: radius.full,
-                  paddingHorizontal: 12,
-                  paddingVertical: 5,
-                }}
-              >
-                <Text style={{ ...type.labelMd, color: 'rgba(255,255,255,0.9)' }}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Price + CTA */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 4,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-              <Text style={{ ...type.headlineMd, color: '#fff' }}>¥2,999</Text>
-              <Text style={{ ...type.bodyMd, color: 'rgba(255,255,255,0.65)' }}>/年 起</Text>
-            </View>
-            <Pressable
-              onPress={handleLearnMore}
-              style={({ pressed }) => ({
-                backgroundColor: '#FFB300',
-                borderRadius: radius.md,
-                paddingHorizontal: 20,
-                paddingVertical: 12,
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Text style={{ ...type.labelLg, color: '#fff', fontSize: 14 }}>
-                {t('servicesLearnMore' as any)}
-              </Text>
-            </Pressable>
-          </View>
+        {/* ── Health Protection ── */}
+        <View style={{ paddingHorizontal: CARD_MARGIN, gap: spacing.md }}>
+          <Section
+            title={t('servicesPrimeTitle' as any)}
+            subtitle={loc === 'zh'
+              ? '认知健康问题的诊疗费用高昂，一份高端住院医疗险让您无后顾之忧。覆盖特需部、VIP病房及海外就医。'
+              : 'Cognitive health treatments can be costly. A premium inpatient plan gives you peace of mind with coverage for VIP wards, specialist care, and overseas treatment.'}
+          />
+          <ProductCard
+            item={featuredInsurance}
+            locale={loc}
+            icon="shield"
+            onPress={() => navigateTo(featuredInsurance.id)}
+          />
         </View>
 
         {/* ── Specialist Booking ── */}
-        <View style={{ gap: 16 }}>
-          <Text style={{ ...type.headlineMd, color: colors.primary }}>
-            {t('servicesSpecialists' as any)}
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 16, paddingRight: 4 }}
-          >
-            {doctors.map((doc) => (
-              <View
-                key={doc.nameKey}
-                style={{
-                  width: 180,
-                  backgroundColor: colors.surfaceContainerLowest,
-                  borderRadius: radius.xl,
-                  overflow: 'hidden',
-                  ...shadow.soft,
-                }}
-              >
-                {/* Avatar */}
-                <View
-                  style={{
-                    backgroundColor: doc.color,
-                    height: 110,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Text style={{ fontSize: 44 }}>{doc.emoji}</Text>
-                </View>
-
-                {/* Info */}
-                <View style={{ padding: 14, gap: 4 }}>
-                  <Text style={{ ...type.titleLg, color: colors.onSurface, fontSize: 15 }}>
-                    {t(doc.nameKey as any)}
-                  </Text>
-                  <Text
-                    style={{ ...type.bodyMd, color: colors.onSurfaceVariant, fontSize: 12, lineHeight: 16 }}
-                  >
-                    {t(doc.specKey as any)}
-                  </Text>
-
-                  <Pressable
-                    onPress={() => handleBookDoctor(t(doc.nameKey as any))}
-                    style={({ pressed }) => ({
-                      marginTop: 8,
-                      backgroundColor: colors.surfaceContainerLow,
-                      borderRadius: radius.md,
-                      paddingVertical: 10,
-                      alignItems: 'center',
-                      opacity: pressed ? 0.85 : 1,
-                    })}
-                  >
-                    <Text style={{ ...type.labelLg, color: colors.primary }}>
-                      {t('servicesBookNow' as any)}
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
+        <View style={{ gap: spacing.md }}>
+          <View style={{ paddingHorizontal: CARD_MARGIN }}>
+            <Section
+              title={t('servicesSpecialists' as any)}
+              subtitle={loc === 'zh'
+                ? 'AI筛查发现风险后，由权威神经内科专家为您制定个性化诊疗和康复方案，从筛查到干预无缝衔接。'
+                : 'After AI screening identifies risks, our top neurologists create personalized treatment and rehabilitation plans — seamless from screening to intervention.'}
+            />
+          </View>
+          <DoctorCarousel doctors={doctors} locale={loc} onPress={navigateTo} />
         </View>
-
-        {/* TipRestoreButton */}
-        <TipRestoreButton tipIds={['services_intro']} />
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+/* ── Section header with subtitle ── */
+function Section({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <View style={{ gap: spacing.xs }}>
+      <Text style={{ ...typ.headlineMd, color: colors.primary }}>{title}</Text>
+      <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant, lineHeight: 22 }}>
+        {subtitle}
+      </Text>
+    </View>
+  );
+}
+
+/* ── Doctor Carousel ── */
+function DoctorCarousel({
+  doctors,
+  locale,
+  onPress,
+}: {
+  doctors: ServiceItem[];
+  locale: 'en' | 'zh';
+  onPress: (id: string) => void;
+}) {
+  return (
+    <FlatList
+      data={doctors}
+      keyExtractor={(item) => item.id}
+      horizontal
+      pagingEnabled
+      showsHorizontalScrollIndicator={false}
+      snapToInterval={CARD_WIDTH + spacing.md}
+      decelerationRate="fast"
+      contentContainerStyle={{ paddingHorizontal: CARD_MARGIN, gap: spacing.md }}
+      renderItem={({ item }) => (
+        <View style={{ width: CARD_WIDTH }}>
+          <ProductCard
+            item={item}
+            locale={locale}
+            isDoctor
+            onPress={() => onPress(item.id)}
+          />
+        </View>
+      )}
+    />
+  );
+}
+
+/* ── Big Airbnb-style Product Card ── */
+function ProductCard({
+  item,
+  locale,
+  icon,
+  isDoctor,
+  onPress,
+}: {
+  item: ServiceItem;
+  locale: 'en' | 'zh';
+  icon?: keyof typeof MaterialIcons.glyphMap;
+  isDoctor?: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.card,
+        { opacity: pressed ? 0.95 : 1 },
+      ]}
+    >
+      {/* Hero image area */}
+      <View style={[styles.cardHero, { backgroundColor: item.heroColor }]}>
+        {isDoctor && item.doctorEmoji ? (
+          <View style={styles.doctorCircle}>
+            <Text style={{ fontSize: 56 }}>{item.doctorEmoji}</Text>
+          </View>
+        ) : (
+          <View style={styles.heroIconCircle}>
+            <MaterialIcons
+              name={icon ?? 'medical-services'}
+              size={48}
+              color="rgba(255,255,255,0.25)"
+            />
+          </View>
+        )}
+
+        {/* Badge */}
+        {item.badge && (
+          <View style={styles.cardBadge}>
+            <Text style={{ ...typ.labelLg, color: '#fff' }}>{item.badge[locale]}</Text>
+          </View>
+        )}
+
+        {/* Availability */}
+        {item.availability && (
+          <View style={styles.availBadge}>
+            <MaterialIcons name="event-available" size={13} color="#fff" />
+            <Text style={{ ...typ.labelMd, color: '#fff' }}>{item.availability[locale]}</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Content area */}
+      <View style={styles.cardContent}>
+        <Text style={{ ...typ.headlineSm, color: colors.onSurface }} numberOfLines={1}>
+          {item.title[locale]}
+        </Text>
+        <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }} numberOfLines={2}>
+          {item.subtitle[locale]}
+        </Text>
+
+        {/* Price row */}
+        <View style={styles.priceRow}>
+          {item.originalPrice && (
+            <Text style={styles.originalPrice}>¥{item.originalPrice.toLocaleString()}</Text>
+          )}
+          <Text style={{ ...typ.titleLg, color: colors.onSurface }}>
+            ¥{item.price.toLocaleString()}
+          </Text>
+          <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }}>
+            {item.priceLabel[locale]}
+          </Text>
+        </View>
+
+        {/* Rating row */}
+        {item.reviews.length > 0 && (
+          <View style={styles.ratingRow}>
+            <Text style={{ fontSize: 13, color: colors.tertiary }}>★</Text>
+            <Text style={{ ...typ.labelLg, color: colors.onSurface }}>
+              {(item.reviews.reduce((sum, r) => sum + r.rating, 0) / item.reviews.length).toFixed(1)}
+            </Text>
+            <Text style={{ ...typ.labelLg, color: colors.onSurfaceVariant }}>
+              ({item.reviews.length})
+            </Text>
+          </View>
+        )}
+      </View>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceContainerLowest,
+    ...shadow.card,
+  },
+  cardHero: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  doctorCircle: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardBadge: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  availBadge: {
+    position: 'absolute',
+    bottom: 14,
+    left: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: radius.full,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  cardContent: {
+    padding: spacing.lg,
+    gap: spacing.xs,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+    marginTop: spacing.xs,
+  },
+  originalPrice: {
+    ...typ.bodyMd,
+    color: colors.onSurfaceVariant,
+    textDecorationLine: 'line-through',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+});

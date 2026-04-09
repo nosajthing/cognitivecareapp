@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors, type, radius, shadow } from '../../lib/theme';
+import { colors, type, radius, shadow, spacing } from '../../lib/theme';
 import { ScoreRing } from '../../components/ScoreRing';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import {
@@ -13,62 +13,68 @@ import {
   daysSinceLastAssessment,
   weeklyStreak,
   resetAll,
-  seedDemoData,
-  type FocusArea,
+  hydrateTraining,
+  getTraining,
 } from '../../lib/profileStore';
-import { useTranslation, localizedGreeting } from '../../lib/i18n';
-import { TipCard, TipRestoreButton } from '../../components/TipCard';
+import { setReport, setTranscript } from '../../lib/assessmentStore';
+import { useTranslation, localizedGreeting, localizedDate, localizedTime } from '../../lib/i18n';
 
-type TipKey = {
-  icon: React.ComponentProps<typeof MaterialIcons>['name'];
-  titleKey: string;
-  bodyKey: string;
-};
+const GAMES = [
+  { id: 'card-flip', icon: '🧠', nameKey: 'gameCardFlip', descKey: 'gameCardFlipDesc', color: colors.secondaryContainer, route: '/training/card-flip' },
+  { id: 'category-fluency', icon: '🗣️', nameKey: 'gameCategoryFluency', descKey: 'gameCategoryFluencyDesc', color: colors.tertiaryFixed, route: '/training/category-fluency' },
+  { id: 'stroop', icon: '🎯', nameKey: 'gameStroop', descKey: 'gameStroopDesc', color: colors.primaryFixed, route: '/training/stroop' },
+] as const;
 
-const TIPS_BY_FOCUS: Record<FocusArea, TipKey[]> = {
-  memory: [
-    { icon: 'lightbulb', titleKey: 'tipBlueberriesTitle', bodyKey: 'tipBlueberriesBody' },
-    { icon: 'auto-stories', titleKey: 'tipStoriesTitle', bodyKey: 'tipStoriesBody' },
-  ],
-  language: [
-    { icon: 'translate', titleKey: 'tipReadAloudTitle', bodyKey: 'tipReadAloudBody' },
-    { icon: 'chat', titleKey: 'tipNameThingsTitle', bodyKey: 'tipNameThingsBody' },
-  ],
-  attention: [
-    { icon: 'center-focus-strong', titleKey: 'tipSingleTaskTitle', bodyKey: 'tipSingleTaskBody' },
-    { icon: 'self-improvement', titleKey: 'tipBreathTitle', bodyKey: 'tipBreathBody' },
-  ],
-  sleep: [
-    { icon: 'bedtime', titleKey: 'tipSleepTitle', bodyKey: 'tipSleepBody' },
-    { icon: 'nights-stay', titleKey: 'tipDimTitle', bodyKey: 'tipDimBody' },
-  ],
-  social: [
-    { icon: 'groups', titleKey: 'tipCallTitle', bodyKey: 'tipCallBody' },
-    { icon: 'coffee', titleKey: 'tipMealTitle', bodyKey: 'tipMealBody' },
-  ],
-};
-
-const DEFAULT_TIPS: TipKey[] = [
-  { icon: 'lightbulb', titleKey: 'tipBlueberriesTitle', bodyKey: 'tipBlueberriesBody' },
-  { icon: 'nightlight-round', titleKey: 'tipSleepTitle', bodyKey: 'tipSleepBody' },
-];
+const DAY_KEYS = ['daySun', 'dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri', 'daySat'] as const;
 
 export default function Home() {
   const router = useRouter();
   const { t, locale } = useTranslation();
   const appState = useAppState();
-  const { profile } = appState;
+  const { profile, assessments } = appState;
   const name = firstName(profile);
   const latest = latestAssessment(appState);
   const daysSince = daysSinceLastAssessment(appState);
   const streak = weeklyStreak(appState);
-
-  const vitality = latest?.report.score ?? null;
   const dueToday = daysSince === null || daysSince >= 1;
 
-  const tips = (profile?.focusAreas ?? []).length > 0
-    ? profile!.focusAreas.flatMap((f) => TIPS_BY_FOCUS[f]).slice(0, 3)
-    : DEFAULT_TIPS;
+  const [completed, setCompleted] = useState<string[]>([]);
+
+  useEffect(() => {
+    hydrateTraining().then(() => setCompleted(getTraining().completed));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCompleted(getTraining().completed);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Build last 7 days for activity grid
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+
+  const assessmentsByDay = new Map<string, number>();
+  assessments.forEach((a) => {
+    const key = new Date(a.date).toDateString();
+    if (!assessmentsByDay.has(key)) {
+      assessmentsByDay.set(key, a.report.score);
+    }
+  });
+
+  const RISK_LABEL = {
+    low: { label: t('riskLow'), bg: colors.secondaryContainer, fg: colors.onSecondaryContainer },
+    moderate: { label: t('riskModerate'), bg: colors.tertiaryFixed, fg: colors.onTertiaryFixed },
+    elevated: { label: t('riskElevated'), bg: colors.errorContainer, fg: colors.onErrorContainer },
+  };
+
+  const trainingDone = completed.length;
+  const trainingTotal = GAMES.length;
 
   function confirmReset() {
     Alert.alert(
@@ -90,12 +96,11 @@ export default function Home() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScreenHeader title={t('headerCognitiveCare')} />
+      <ScreenHeader title={t('headerCognitiveCare')} showLogo />
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120, gap: 32 }}
         showsVerticalScrollIndicator={false}
       >
-        <TipCard tipId="home_welcome" icon="💡" titleKey="tipHomeTitle" bodyKey="tipHomeBody" />
         {/* Greeting */}
         <View style={{ gap: 8 }}>
           <Text
@@ -117,35 +122,6 @@ export default function Home() {
                 : t('statusGreatWork')
               : t('statusBaseline')}
           </Text>
-
-          {vitality !== null && (
-            <View
-              style={{
-                marginTop: 24,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 16,
-                backgroundColor: colors.surfaceContainerLow,
-                padding: 24,
-                borderRadius: radius.xl,
-              }}
-            >
-              <ScoreRing size={80} stroke={8} progress={vitality / 100} label={`${Math.round(vitality)}`} />
-              <View>
-                <Text style={{ ...type.headlineSm, color: colors.primary }}>{t('dailyVitality')}</Text>
-                <Text
-                  style={{
-                    ...type.labelMd,
-                    color: colors.outline,
-                    textTransform: 'uppercase',
-                    marginTop: 4,
-                  }}
-                >
-                  {vitality >= 80 ? t('optimumRange') : vitality >= 60 ? t('goodRange') : t('building')}
-                </Text>
-              </View>
-            </View>
-          )}
         </View>
 
         {/* Hero CTA */}
@@ -199,37 +175,134 @@ export default function Home() {
           </View>
         </Pressable>
 
-        {/* Tips */}
+        {/* Activity — Duolingo-style 7-day grid */}
         <View style={{ gap: 16 }}>
+          <Text style={{ ...type.headlineMd, color: colors.primary }}>{t('activity')}</Text>
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
+              backgroundColor: colors.surfaceContainerLowest,
+              padding: 24,
+              borderRadius: 24,
+              ...shadow.card,
+              gap: 20,
             }}
           >
-            <Text style={{ ...type.titleLg, color: colors.primary }}>
-              {profile?.focusAreas && profile.focusAreas.length > 0 ? t('tipsForYou') : t('cognitiveTips')}
-            </Text>
-            <Text style={{ ...type.labelLg, color: colors.secondary }}>{t('viewAll')}</Text>
+            {/* 7-day row */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              {last7Days.map((day, i) => {
+                const isToday = day.toDateString() === new Date().toDateString();
+                const score = assessmentsByDay.get(day.toDateString());
+                const hasAssessment = score !== undefined;
+                const dayKey = DAY_KEYS[day.getDay()];
+
+                return (
+                  <View key={i} style={{ alignItems: 'center', gap: 6 }}>
+                    <Text style={{ ...type.labelMd, color: colors.outline }}>
+                      {t(dayKey as any)}
+                    </Text>
+                    <View
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        backgroundColor: hasAssessment ? colors.secondary : colors.surfaceContainerLow,
+                        borderWidth: isToday && !hasAssessment ? 2 : 0,
+                        borderColor: colors.primary,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {hasAssessment ? (
+                        <Text style={{ ...type.labelLg, color: '#fff', fontWeight: '700' }}>
+                          {Math.round(score!)}
+                        </Text>
+                      ) : isToday ? (
+                        <MaterialIcons name="add" size={18} color={colors.primary} />
+                      ) : (
+                        <View
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor: colors.outlineVariant,
+                          }}
+                        />
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* Streak */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <MaterialIcons name="local-fire-department" size={24} color={colors.tertiary} />
+                <Text style={{ ...type.titleLg, color: colors.primary }}>
+                  {t('dayStreak', { count: streak })}
+                </Text>
+              </View>
+              {!dueToday && (
+                <View
+                  style={{
+                    backgroundColor: colors.secondaryContainer,
+                    paddingHorizontal: 12,
+                    paddingVertical: 4,
+                    borderRadius: 999,
+                  }}
+                >
+                  <Text style={{ ...type.labelLg, color: colors.onSecondaryContainer }}>
+                    {t('todayDone')}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* CTA if today not done */}
+            {dueToday && (
+              <Pressable
+                onPress={() => router.push('/assessment/record')}
+                style={({ pressed }) => ({
+                  backgroundColor: colors.primary,
+                  paddingVertical: 14,
+                  borderRadius: radius.full,
+                  alignItems: 'center',
+                  opacity: pressed ? 0.9 : 1,
+                })}
+              >
+                <Text style={{ ...type.titleLg, color: '#fff' }}>
+                  {t('todayNotDone')}
+                </Text>
+              </Pressable>
+            )}
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 16, paddingRight: 16 }}
-          >
-            {tips.map((tip, i) => (
-              <View
-                key={i}
+        </View>
+
+        {/* Daily Training */}
+        <View style={{ gap: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={{ ...type.headlineMd, color: colors.primary }}>{t('dailyTraining')}</Text>
+            <Text style={{ ...type.labelLg, color: colors.secondary }}>
+              {trainingDone}/{trainingTotal}
+            </Text>
+          </View>
+          {GAMES.map((game) => {
+            const isDone = completed.includes(game.id);
+            return (
+              <Pressable
+                key={game.id}
+                onPress={() => {
+                  if (!isDone) router.push(game.route as any);
+                }}
                 style={{
-                  width: 280,
-                  padding: 24,
-                  borderRadius: 32,
-                  backgroundColor: colors.surfaceContainerLowest,
-                  borderWidth: 1,
-                  borderColor: 'rgba(190,200,203,0.1)',
-                  gap: 16,
                   ...shadow.soft,
+                  backgroundColor: colors.surfaceContainerLowest,
+                  borderRadius: radius.lg,
+                  padding: spacing.md,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: spacing.md,
+                  opacity: isDone ? 0.7 : 1,
                 }}
               >
                 <View
@@ -237,69 +310,110 @@ export default function Home() {
                     width: 48,
                     height: 48,
                     borderRadius: 16,
-                    backgroundColor: colors.tertiaryFixed,
+                    backgroundColor: game.color,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <MaterialIcons name={tip.icon} size={24} color={colors.tertiary} />
+                  <Text style={{ fontSize: 24 }}>{game.icon}</Text>
                 </View>
-                <Text style={{ ...type.headlineSm, color: colors.primary }}>{t(tip.titleKey as any)}</Text>
-                <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant }}>{t(tip.bodyKey as any)}</Text>
-              </View>
-            ))}
-          </ScrollView>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ ...type.titleLg, color: colors.onSurface }}>{t(game.nameKey as any)}</Text>
+                </View>
+                {isDone ? (
+                  <Text style={{ ...type.labelLg, color: colors.secondary }}>{t('trainingCompletedToday' as any)}</Text>
+                ) : (
+                  <View style={{ backgroundColor: colors.primary, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.sm }}>
+                    <Text style={{ ...type.labelLg, color: '#fff' }}>{t('trainingStartGame' as any)}</Text>
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
 
-        {/* Bento stats */}
-        <View style={{ flexDirection: 'row', gap: 16 }}>
-          <View style={{ flex: 1, backgroundColor: '#fff', padding: 24, borderRadius: 24, ...shadow.soft }}>
-            <MaterialIcons name="insights" size={24} color={colors.secondary} />
-            <Text
-              style={{
-                ...type.labelMd,
-                color: colors.outline,
-                textTransform: 'uppercase',
-                marginTop: 12,
-              }}
-            >
-              {t('weeklyStreak')}
-            </Text>
-            <Text style={{ ...type.headlineLg, color: colors.primary, marginTop: 4 }}>
-              {streak} {streak === 1 ? t('day_one') : t('day_other')}
-            </Text>
-          </View>
-          <View style={{ flex: 1, backgroundColor: '#fff', padding: 24, borderRadius: 24, ...shadow.soft }}>
-            <MaterialIcons name="event-available" size={24} color={colors.tertiary} />
-            <Text
-              style={{
-                ...type.labelMd,
-                color: colors.outline,
-                textTransform: 'uppercase',
-                marginTop: 12,
-              }}
-            >
-              {t('assessments')}
-            </Text>
-            <Text style={{ ...type.headlineLg, color: colors.primary, marginTop: 4 }}>
-              {appState.assessments.length}
-            </Text>
-          </View>
-        </View>
-
-        {/* Demo controls */}
-        <View style={{ alignItems: 'center', gap: 8 }}>
-          <Pressable
-            onPress={async () => {
-              await seedDemoData(locale);
-              Alert.alert(t('demoDataLoaded'), t('demoDataLoadedMsg'));
+        {/* Latest recommendation */}
+        {latest?.report.recommendations[0] && (
+          <View
+            style={{
+              backgroundColor: colors.tertiaryFixed,
+              padding: 28,
+              borderRadius: 24,
             }}
-            style={{ paddingVertical: 12, paddingHorizontal: 16 }}
           >
-            <Text style={{ ...type.labelMd, color: colors.secondary, textTransform: 'uppercase' }}>
-              {t('loadDemoData')}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <MaterialIcons name="lightbulb" size={24} color={colors.tertiary} />
+              <Text style={{ ...type.titleLg, color: colors.onTertiaryFixed }}>
+                {t('recommendationFor', { name })}
+              </Text>
+            </View>
+            <Text style={{ ...type.bodyLg, color: colors.onTertiaryFixed }}>
+              {latest.report.recommendations[0]}
             </Text>
-          </Pressable>
+          </View>
+        )}
+
+        {/* All Assessments list */}
+        {assessments.length > 0 && (
+          <View style={{ gap: 16 }}>
+            <Text style={{ ...type.headlineMd, color: colors.primary }}>{t('allAssessments')}</Text>
+            {assessments.map((a) => (
+              <Pressable
+                key={a.id}
+                onPress={() => {
+                  setReport(a.report);
+                  setTranscript(a.transcript);
+                  router.push('/assessment/report');
+                }}
+                style={({ pressed }) => ({
+                  backgroundColor: colors.surfaceContainerLowest,
+                  padding: 20,
+                  borderRadius: 24,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  opacity: pressed ? 0.9 : 1,
+                })}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 }}>
+                  <View
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 16,
+                      backgroundColor: colors.secondaryFixed,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Text style={{ ...type.titleLg, color: colors.onSecondaryFixed }}>
+                      {Math.round(a.report.score)}
+                    </Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ ...type.titleLg, color: colors.primary, fontSize: 16 }}>
+                      {localizedDate(a.date, locale)}
+                    </Text>
+                    <Text
+                      style={{
+                        ...type.labelMd,
+                        color: colors.outline,
+                        textTransform: 'none',
+                        marginTop: 2,
+                      }}
+                    >
+                      {RISK_LABEL[a.report.riskLevel].label} • {localizedTime(a.date, locale)}
+                    </Text>
+                  </View>
+                </View>
+                <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
+              </Pressable>
+            ))}
+          </View>
+        )}
+
+        {/* Reset demo */}
+        <View style={{ alignItems: 'center', gap: 8 }}>
           <Pressable onPress={confirmReset} style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
             <Text style={{ ...type.labelMd, color: colors.outline, textTransform: 'uppercase' }}>
               {t('resetDemo')}
@@ -307,7 +421,6 @@ export default function Home() {
           </Pressable>
         </View>
       </ScrollView>
-      <TipRestoreButton tipIds={['home_welcome']} />
     </SafeAreaView>
   );
 }

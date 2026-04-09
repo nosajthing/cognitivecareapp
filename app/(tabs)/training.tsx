@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors, type, radius, shadow } from '../../lib/theme';
+import { colors, type, radius, shadow, spacing } from '../../lib/theme';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { TipCard, TipRestoreButton } from '../../components/TipCard';
 import { ScoreRing } from '../../components/ScoreRing';
 import { useTranslation } from '../../lib/i18n';
 import { hydrateTraining, getTraining } from '../../lib/profileStore';
 
 const GAMES = [
-  { id: 'card-flip', icon: '🧠', nameKey: 'gameCardFlip', descKey: 'gameCardFlipDesc', color: '#E8F5E9', route: '/training/card-flip' },
-  { id: 'category-fluency', icon: '🗣️', nameKey: 'gameCategoryFluency', descKey: 'gameCategoryFluencyDesc', color: '#FFF8E1', route: '/training/category-fluency' },
-  { id: 'stroop', icon: '🎯', nameKey: 'gameStroop', descKey: 'gameStroopDesc', color: '#E8EAF6', route: '/training/stroop' },
+  { id: 'card-flip', icon: '🧠', nameKey: 'gameCardFlip', descKey: 'gameCardFlipDesc', color: colors.secondaryContainer, route: '/training/card-flip' },
+  { id: 'category-fluency', icon: '🗣️', nameKey: 'gameCategoryFluency', descKey: 'gameCategoryFluencyDesc', color: colors.tertiaryFixed, route: '/training/category-fluency' },
+  { id: 'stroop', icon: '🎯', nameKey: 'gameStroop', descKey: 'gameStroopDesc', color: colors.primaryFixed, route: '/training/stroop' },
 ] as const;
 
 export default function Training() {
@@ -41,8 +40,6 @@ export default function Training() {
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScreenHeader title={t('tabTraining')} />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 120 }}>
-        <TipCard tipId="training_intro" icon="💡" titleKey="tipTrainingTitle" bodyKey="tipTrainingBody" />
-
         {/* Daily Progress */}
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
           <ScoreRing
@@ -66,13 +63,13 @@ export default function Training() {
               }}
               style={{
                 ...shadow.soft,
-                backgroundColor: '#fff',
+                backgroundColor: colors.surfaceContainerLowest,
                 borderRadius: radius.lg,
-                padding: 18,
-                marginBottom: 14,
+                padding: spacing.md,
+                marginBottom: spacing.md,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 14,
+                gap: spacing.md,
                 opacity: isDone ? 0.7 : 1,
               }}
             >
@@ -97,7 +94,7 @@ export default function Training() {
               {isDone ? (
                 <Text style={{ ...type.labelLg, color: colors.secondary }}>{t('trainingCompletedToday' as any)}</Text>
               ) : (
-                <View style={{ backgroundColor: colors.primary, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8 }}>
+                <View style={{ backgroundColor: colors.primary, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.sm }}>
                   <Text style={{ ...type.labelLg, color: '#fff' }}>{t('trainingStartGame' as any)}</Text>
                 </View>
               )}
@@ -105,7 +102,6 @@ export default function Training() {
           );
         })}
       </ScrollView>
-      <TipRestoreButton tipIds={['training_intro']} />
     </SafeAreaView>
   );
 }

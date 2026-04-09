@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, type, radius } from '../lib/theme';
+import { colors, type, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/i18n';
 import { hydrateTips, isDismissed, dismissTip, restoreTips } from '../lib/tipStore';
 
@@ -29,21 +29,21 @@ export function TipCard({ tipId, icon, titleKey, bodyKey }: TipCardProps) {
   return (
     <View
       style={{
-        backgroundColor: '#E8F5E9',
+        backgroundColor: colors.secondaryContainer,
         borderRadius: radius.md,
-        padding: 14,
-        marginBottom: 12,
+        padding: spacing.md,
+        marginBottom: spacing.md,
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 10,
+        gap: spacing.sm,
       }}
     >
       <Text style={{ fontSize: 18 }}>{icon}</Text>
       <View style={{ flex: 1 }}>
-        <Text style={{ ...type.labelLg, color: '#2E7D32', marginBottom: 2 }}>
+        <Text style={{ ...type.labelLg, color: colors.onSecondaryContainer, marginBottom: 2 }}>
           {t(titleKey as any)}
         </Text>
-        <Text style={{ fontSize: 13, color: '#2E7D32', lineHeight: 18 }}>
+        <Text style={{ ...type.labelLg, color: colors.onSecondaryContainer, fontWeight: '400' }}>
           {t(bodyKey as any)}
         </Text>
       </View>
@@ -54,7 +54,7 @@ export function TipCard({ tipId, icon, titleKey, bodyKey }: TipCardProps) {
         }}
         hitSlop={8}
       >
-        <MaterialIcons name="close" size={18} color="#2E7D32" style={{ opacity: 0.5 }} />
+        <MaterialIcons name="close" size={18} color={colors.onSecondaryContainer} style={{ opacity: 0.5 }} />
       </Pressable>
     </View>
   );
@@ -83,7 +83,7 @@ export function TipRestoreButton({ tipIds }: { tipIds: string[] }) {
         bottom: 100,
         right: 20,
         backgroundColor: colors.secondaryContainer,
-        borderRadius: 999,
+        borderRadius: radius.full,
         paddingHorizontal: 14,
         paddingVertical: 8,
         flexDirection: 'row',

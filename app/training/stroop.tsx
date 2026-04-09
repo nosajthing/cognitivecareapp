@@ -278,7 +278,7 @@ export default function StroopGame() {
               width: 80,
               height: 80,
               borderRadius: 40,
-              backgroundColor: '#E8EAF6',
+              backgroundColor: colors.primaryFixed,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: spacing.lg,
@@ -406,7 +406,7 @@ export default function StroopGame() {
               width: 100,
               height: 100,
               borderRadius: 50,
-              backgroundColor: correct >= 8 ? '#E8F5E9' : correct >= 5 ? '#FFF8E1' : '#FCE4EC',
+              backgroundColor: correct >= 8 ? colors.secondaryContainer : correct >= 5 ? colors.tertiaryFixed : colors.errorContainer,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: spacing.lg,
@@ -635,7 +635,7 @@ export default function StroopGame() {
               inputRange: [0, 1],
               outputRange: [
                 'transparent',
-                answered && isCorrectButton ? '#00C853' : '#D32F2F',
+                answered && isCorrectButton ? colors.secondary : colors.error,
               ],
             });
 
@@ -677,7 +677,7 @@ export default function StroopGame() {
               inputRange: [0, 1],
               outputRange: [
                 'transparent',
-                answered && isCorrectButton ? '#00C853' : '#D32F2F',
+                answered && isCorrectButton ? colors.secondary : colors.error,
               ],
             });
 

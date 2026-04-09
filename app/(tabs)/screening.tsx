@@ -12,7 +12,6 @@ import {
   latestAssessment,
 } from '../../lib/profileStore';
 import { useTranslation } from '../../lib/i18n';
-import { TipCard, TipRestoreButton } from '../../components/TipCard';
 
 function useFormatDaysAgo() {
   const { t } = useTranslation();
@@ -48,7 +47,6 @@ export default function Screening() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScreenHeader title={t('headerScreening')} />
-      <TipCard tipId="screening_intro" icon="💡" titleKey="tipScreeningTitle" bodyKey="tipScreeningBody" />
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120, gap: 24 }}
         showsVerticalScrollIndicator={false}
@@ -173,7 +171,6 @@ export default function Screening() {
           {t('dataDisclaimer')}
         </Text>
       </ScrollView>
-      <TipRestoreButton tipIds={['screening_intro']} />
     </SafeAreaView>
   );
 }
