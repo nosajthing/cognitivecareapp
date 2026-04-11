@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { colors, type, shadow } from '../../lib/theme';
+import { colors, type, shadow, spacing } from '../../lib/theme';
 import { useAppState, firstName } from '../../lib/profileStore';
 import { OnboardingScaffold } from '../../components/OnboardingScaffold';
 import { useTranslation } from '../../lib/i18n';
@@ -29,7 +29,7 @@ export default function OnboardingReady() {
             backgroundColor: colors.primary,
             borderRadius: 32,
             padding: 28,
-            gap: 20,
+            gap: spacing.lg,
             ...shadow.card,
           }}
         >
