@@ -52,6 +52,13 @@ export const colors = {
   inverseSurface: '#2d3133',
   inverseOnSurface: '#eff1f3',
   inversePrimary: '#86d2e5',
+
+  // Stroop game — saturated distinct hues required by the Stroop effect.
+  // These are semantic game colors, not UI chrome. Do NOT reuse as UI accents.
+  stroopRed: '#E53935',
+  stroopBlue: '#1E88E5',
+  stroopGreen: '#43A047',
+  stroopYellow: '#FDD835',
 };
 
 export const fonts = {
