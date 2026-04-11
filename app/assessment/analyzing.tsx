@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, Pressable, Easing } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors, type } from '../../lib/theme';
+import { colors, type, radius } from '../../lib/theme';
 import { getState, setReport, setTranscript, setError } from '../../lib/assessmentStore';
 import { transcribeAudio, analyzeAssessment } from '../../lib/openai';
 import { addAssessment } from '../../lib/profileStore';
@@ -48,7 +48,7 @@ function PulsingOrb() {
           position: 'absolute',
           width: 80,
           height: 80,
-          borderRadius: 40,
+          borderRadius: radius.full,
           backgroundColor: colors.primaryContainer,
           opacity,
           transform: [{ scale }],
@@ -58,7 +58,7 @@ function PulsingOrb() {
         style={{
           width: 48,
           height: 48,
-          borderRadius: 24,
+          borderRadius: radius.full,
           backgroundColor: colors.primary,
           opacity,
           transform: [{ scale }],
