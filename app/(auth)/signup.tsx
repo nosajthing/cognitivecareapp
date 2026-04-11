@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { colors, type, shadow } from '../../lib/theme';
+import { colors, type, shadow, spacing } from '../../lib/theme';
 import { createProfile } from '../../lib/profileStore';
 import { useTranslation } from '../../lib/i18n';
 
@@ -149,10 +149,10 @@ function Field({
         placeholderTextColor={colors.outline}
         style={{
           backgroundColor: colors.surfaceContainerLowest,
-          paddingHorizontal: 20,
-          paddingVertical: 16,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.md,
           borderRadius: 16,
-          fontSize: 18,
+          ...type.bodyLg,
           color: colors.onSurface,
           borderWidth: 1,
           borderColor: colors.outlineVariant,
