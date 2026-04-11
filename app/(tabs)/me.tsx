@@ -7,13 +7,15 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { useTranslation } from '../../lib/i18n';
 import { useAppState, resetAll } from '../../lib/profileStore';
 
-/* ── Reusable row inside a card ──────────────────────────── */
+/* ── Reusable row inside a section card ──────────────────────────── */
 function Row({
   label,
   children,
+  first,
 }: {
   label: string;
   children: React.ReactNode;
+  first?: boolean;
 }) {
   return (
     <View
@@ -21,13 +23,13 @@ function Row({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-        borderTopWidth: 1,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        borderTopWidth: first ? 0 : 1,
         borderTopColor: colors.outlineVariant,
       }}
     >
-      <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant }}>
+      <Text style={{ ...type.bodyLg, color: colors.onSurfaceVariant }}>
         {label}
       </Text>
       {children}
@@ -35,7 +37,7 @@ function Row({
   );
 }
 
-/* ── Section card wrapper ────────────────────────────────── */
+/* ── Section card wrapper ────────────────────────────────────────── */
 function Section({ children }: { children: React.ReactNode }) {
   return (
     <View
@@ -51,19 +53,10 @@ function Section({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ── Section header ──────────────────────────────────────── */
-function SectionTitle({ children }: { children: string }) {
+/* ── Section header (mirrors Home's pattern) ─────────────────────── */
+function SectionHeader({ children }: { children: string }) {
   return (
-    <Text
-      style={{
-        ...type.labelMd,
-        color: colors.onSurfaceVariant,
-        paddingHorizontal: 20,
-        paddingTop: 16,
-        paddingBottom: 10,
-        textTransform: 'uppercase',
-      }}
-    >
+    <Text style={{ ...type.headlineMd, color: colors.primary }}>
       {children}
     </Text>
   );
@@ -97,115 +90,113 @@ export default function MeScreen() {
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScreenHeader title={t('headerMe')} />
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingBottom: 120, gap: 20 }}
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: 120, gap: spacing.xl }}
         showsVerticalScrollIndicator={false}
       >
         {/* ── Profile ──────────────────────────────────── */}
-        <Section>
-          <SectionTitle>{t('settingsProfile')}</SectionTitle>
+        <View style={{ gap: spacing.md }}>
+          <SectionHeader>{t('settingsProfile')}</SectionHeader>
+          <Section>
+            <Row label={t('settingsName')} first>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {profile?.name ?? '—'}
+              </Text>
+            </Row>
+            <Row label={t('settingsEmail')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {profile?.email ?? '—'}
+              </Text>
+            </Row>
+            <Row label={t('settingsBirthYear')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {profile?.birthYear != null ? String(profile.birthYear) : '—'}
+              </Text>
+            </Row>
+          </Section>
+        </View>
 
-          <Row label={t('settingsName')}>
-            <Text style={{ ...type.bodyMd, color: colors.onSurface }}>
-              {profile?.name ?? '—'}
-            </Text>
-          </Row>
-
-          <Row label={t('settingsEmail')}>
-            <Text style={{ ...type.bodyMd, color: colors.onSurface }}>
-              {profile?.email ?? '—'}
-            </Text>
-          </Row>
-
-          <Row label={t('settingsBirthYear')}>
-            <Text style={{ ...type.bodyMd, color: colors.onSurface }}>
-              {profile?.birthYear != null ? String(profile.birthYear) : '—'}
-            </Text>
-          </Row>
-        </Section>
-
-        {/* ── Preferences ──────────────────────────────── */}
-        <Section>
-          <SectionTitle>{t('settingsLanguage')}</SectionTitle>
-
-          {/* Language — inline segmented pill, same row height as Switch rows */}
-          <Row label={t('settingsLanguage')}>
-            <View
-              style={{
-                flexDirection: 'row',
-                backgroundColor: colors.surfaceContainerHigh,
-                borderRadius: radius.full,
-                padding: 3,
-              }}
-            >
-              {(['en', 'zh'] as const).map((lang) => {
-                const active = locale === lang;
-                return (
-                  <Pressable
-                    key={lang}
-                    onPress={() => setLocale(lang)}
-                    style={{
-                      paddingHorizontal: 14,
-                      paddingVertical: 5,
-                      borderRadius: radius.full,
-                      backgroundColor: active ? colors.surfaceContainerLowest : 'transparent',
-                    }}
-                  >
-                    <Text
+        {/* ── Language ─────────────────────────────────── */}
+        <View style={{ gap: spacing.md }}>
+          <SectionHeader>{t('settingsLanguage')}</SectionHeader>
+          <Section>
+            <Row label={t('settingsLanguage')} first>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  backgroundColor: colors.surfaceContainerHigh,
+                  borderRadius: radius.full,
+                  padding: 3,
+                }}
+              >
+                {(['en', 'zh'] as const).map((lang) => {
+                  const active = locale === lang;
+                  return (
+                    <Pressable
+                      key={lang}
+                      onPress={() => setLocale(lang)}
                       style={{
-                        ...type.labelLg,
-                        color: active ? colors.onSurface : colors.onSurfaceVariant,
+                        paddingHorizontal: 14,
+                        paddingVertical: 5,
+                        borderRadius: radius.full,
+                        backgroundColor: active ? colors.surfaceContainerLowest : 'transparent',
                       }}
                     >
-                      {lang === 'en' ? 'EN' : '中文'}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Row>
-        </Section>
+                      <Text
+                        style={{
+                          ...type.labelLg,
+                          color: active ? colors.onSurface : colors.onSurfaceVariant,
+                        }}
+                      >
+                        {lang === 'en' ? 'EN' : '中文'}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Row>
+          </Section>
+        </View>
 
         {/* ── Notifications ────────────────────────────── */}
-        <Section>
-          <SectionTitle>{t('settingsNotifications')}</SectionTitle>
-
-          <Row label={t('settingsDailyReminder')}>
-            <Switch
-              value={dailyReminder}
-              onValueChange={setDailyReminder}
-              trackColor={{ false: colors.surfaceVariant, true: colors.primaryContainer }}
-              thumbColor={dailyReminder ? colors.primary : colors.outline}
-            />
-          </Row>
-
-          <Row label={t('settingsReminderTime')}>
-            <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant }}>
-              9:00 AM
-            </Text>
-          </Row>
-        </Section>
+        <View style={{ gap: spacing.md }}>
+          <SectionHeader>{t('settingsNotifications')}</SectionHeader>
+          <Section>
+            <Row label={t('settingsDailyReminder')} first>
+              <Switch
+                value={dailyReminder}
+                onValueChange={setDailyReminder}
+                trackColor={{ false: colors.surfaceVariant, true: colors.primaryContainer }}
+                thumbColor={dailyReminder ? colors.primary : colors.outline}
+              />
+            </Row>
+            <Row label={t('settingsReminderTime')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurfaceVariant }}>
+                9:00 AM
+              </Text>
+            </Row>
+          </Section>
+        </View>
 
         {/* ── About ────────────────────────────────────── */}
-        <Section>
-          <SectionTitle>{t('settingsAbout')}</SectionTitle>
-
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 14,
-              borderTopWidth: 1,
-              borderTopColor: colors.outlineVariant,
-              gap: 6,
-            }}
-          >
-            <Text style={{ ...type.bodyMd, color: colors.onSurface, lineHeight: 20 }}>
-              {t('settingsAboutText')}
-            </Text>
-            <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant }}>
-              {t('settingsVersion', { version: '1.0.0' })}
-            </Text>
-          </View>
-        </Section>
+        <View style={{ gap: spacing.md }}>
+          <SectionHeader>{t('settingsAbout')}</SectionHeader>
+          <Section>
+            <View
+              style={{
+                paddingHorizontal: spacing.lg,
+                paddingVertical: spacing.md,
+                gap: spacing.xs,
+              }}
+            >
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {t('settingsAboutText')}
+              </Text>
+              <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant }}>
+                {t('settingsVersion', { version: '1.0.0' })}
+              </Text>
+            </View>
+          </Section>
+        </View>
 
         {/* ── Reset ────────────────────────────────────── */}
         <Pressable
@@ -214,7 +205,7 @@ export default function MeScreen() {
             borderWidth: 1,
             borderColor: colors.outlineVariant,
             borderRadius: radius.lg,
-            paddingVertical: 14,
+            paddingVertical: spacing.md,
             alignItems: 'center',
             opacity: pressed ? 0.7 : 1,
           })}
