@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, Line } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import { colors, type, shadow } from '../../lib/theme';
+import { colors, type, shadow, spacing } from '../../lib/theme';
 import { ScoreRing } from '../../components/ScoreRing';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { useAppState, latestAssessment, firstName } from '../../lib/profileStore';
@@ -102,8 +102,8 @@ export default function Reports() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 20 }}>
               <View
                 style={{
-                  paddingHorizontal: 20,
-                  paddingVertical: 8,
+                  paddingHorizontal: spacing.md,
+                  paddingVertical: spacing.sm,
                   backgroundColor: risk.bg,
                   borderRadius: 999,
                 }}
@@ -224,7 +224,7 @@ export default function Reports() {
                   </Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ ...type.titleLg, color: colors.primary, fontSize: 16 }}>
+                  <Text style={{ ...type.bodyLg, color: colors.primary, fontWeight: '700' }}>
                     {localizedDate(a.date, locale)}
                   </Text>
                   <Text
