@@ -49,7 +49,7 @@ export default function ServiceDetail() {
         >
           {service.doctorEmoji ? (
             <View style={styles.doctorAvatar}>
-              <Text style={{ fontSize: 72 }}>{service.doctorEmoji}</Text>
+              <Text style={{ fontSize: 64 }}>{service.doctorEmoji}</Text>
             </View>
           ) : (
             <View style={styles.heroIcon}>
@@ -107,7 +107,7 @@ export default function ServiceDetail() {
 
           {/* Features */}
           <View style={{ gap: spacing.md }}>
-            <Text style={{ ...typ.headlineSm, color: colors.onSurface }}>
+            <Text style={{ ...typ.headlineMd, color: colors.primary }}>
               {t('servicesFeatures' as any)}
             </Text>
             <View style={{ gap: spacing.sm }}>
@@ -128,7 +128,7 @@ export default function ServiceDetail() {
           {/* Reviews */}
           <View style={{ gap: spacing.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={{ ...typ.headlineSm, color: colors.onSurface }}>
+              <Text style={{ ...typ.headlineMd, color: colors.primary }}>
                 {t('servicesReviews' as any)}
               </Text>
               <View style={styles.trustBadge}>
@@ -145,7 +145,7 @@ export default function ServiceDetail() {
                   <Text style={{ ...typ.bodyLg, color: colors.onSurface, fontWeight: '600' }}>
                     {review.author[loc]}
                   </Text>
-                  <Text style={{ fontSize: 14, color: colors.tertiary }}>
+                  <Text style={{ ...typ.bodyMd, color: colors.tertiary }}>
                     {stars(review.rating)}
                   </Text>
                 </View>
