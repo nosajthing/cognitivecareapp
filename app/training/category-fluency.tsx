@@ -31,16 +31,18 @@ const CATEGORIES = [
 
 type CategoryKey = (typeof CATEGORIES)[number];
 
-// Pill background colors — varying teal/green shades for visual interest
+// Pill background colors — varying teal/green shades from the theme
+// palette. All 8 slots source from lib/theme.ts; two cyan variants
+// reuse existing tokens rather than introducing new ones.
 const PILL_COLORS = [
-  '#a9edff', // primaryFixed
-  '#a3f1e2', // secondaryFixed
-  '#87d5c6', // secondaryFixedDim
-  '#86d2e5', // inversePrimary
-  '#97e3f6', // onPrimaryContainer
-  '#a0eedf', // secondaryContainer
-  '#d4f7ee',
-  '#b2e8f8',
+  colors.primaryFixed,
+  colors.secondaryFixed,
+  colors.secondaryFixedDim,
+  colors.inversePrimary,
+  colors.onPrimaryContainer,
+  colors.secondaryContainer,
+  colors.secondaryFixed,
+  colors.primaryFixed,
 ];
 
 function pickRandom<T>(arr: readonly T[]): T {
