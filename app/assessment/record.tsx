@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { colors, type, shadow } from '../../lib/theme';
+import { colors, type, shadow, radius, spacing } from '../../lib/theme';
 import { reset, setAudioUri, setPrompt } from '../../lib/assessmentStore';
 import { useAppState, firstName } from '../../lib/profileStore';
 import AudioWaveform from '../../components/AudioWaveform';
@@ -156,9 +156,9 @@ export default function RecordScreen() {
           style={{
             backgroundColor: colors.surfaceContainerLowest,
             padding: 28,
-            borderRadius: 32,
-            gap: 12,
-            marginTop: 16,
+            borderRadius: radius.xxl,
+            gap: spacing.md,
+            marginTop: spacing.md,
             ...shadow.card,
           }}
         >
