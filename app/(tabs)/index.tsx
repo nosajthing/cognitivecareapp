@@ -391,7 +391,7 @@ export default function Home() {
                     </Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ ...type.titleLg, color: colors.primary, fontSize: 16 }}>
+                    <Text style={{ ...type.bodyLg, color: colors.primary, fontWeight: '700' }}>
                       {localizedDate(a.date, locale)}
                     </Text>
                     <Text
