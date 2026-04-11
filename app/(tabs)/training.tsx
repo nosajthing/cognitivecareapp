@@ -39,9 +39,9 @@ export default function Training() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScreenHeader title={t('tabTraining')} />
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 120 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: 120, gap: spacing.md }}>
         {/* Daily Progress */}
-        <View style={{ alignItems: 'center', marginBottom: 24 }}>
+        <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
           <ScoreRing
             progress={total > 0 ? done / total : 0}
             size={100}
@@ -66,7 +66,6 @@ export default function Training() {
                 backgroundColor: colors.surfaceContainerLowest,
                 borderRadius: radius.lg,
                 padding: spacing.md,
-                marginBottom: spacing.md,
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: spacing.md,
@@ -75,15 +74,15 @@ export default function Training() {
             >
               <View
                 style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 16,
+                  width: 48,
+                  height: 48,
+                  borderRadius: radius.md,
                   backgroundColor: game.color,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 26 }}>{game.icon}</Text>
+                <Text style={{ fontSize: 24 }}>{game.icon}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ ...type.titleLg, color: colors.onSurface }}>{t(game.nameKey as any)}</Text>
