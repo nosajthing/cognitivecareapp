@@ -24,10 +24,10 @@ const CORRECT_ADVANCE_MS = 400;
 const WRONG_FLASH_MS = 800;
 
 const COLORS = [
-  { id: 'red', hex: '#E53935', enKey: 'gameStroopRed' },
-  { id: 'blue', hex: '#1E88E5', enKey: 'gameStroopBlue' },
-  { id: 'green', hex: '#43A047', enKey: 'gameStroopGreen' },
-  { id: 'yellow', hex: '#FDD835', enKey: 'gameStroopYellow' },
+  { id: 'red', hex: colors.stroopRed, enKey: 'gameStroopRed' },
+  { id: 'blue', hex: colors.stroopBlue, enKey: 'gameStroopBlue' },
+  { id: 'green', hex: colors.stroopGreen, enKey: 'gameStroopGreen' },
+  { id: 'yellow', hex: colors.stroopYellow, enKey: 'gameStroopYellow' },
 ] as const;
 
 type ColorEntry = (typeof COLORS)[number];
@@ -277,7 +277,7 @@ export default function StroopGame() {
             style={{
               width: 80,
               height: 80,
-              borderRadius: 40,
+              borderRadius: radius.full,
               backgroundColor: colors.primaryFixed,
               alignItems: 'center',
               justifyContent: 'center',
@@ -321,7 +321,7 @@ export default function StroopGame() {
               style={{
                 fontSize: 48,
                 fontWeight: '800',
-                color: '#1E88E5',
+                color: colors.stroopBlue,
                 letterSpacing: 4,
                 marginBottom: spacing.sm,
               }}
@@ -405,7 +405,7 @@ export default function StroopGame() {
             style={{
               width: 100,
               height: 100,
-              borderRadius: 50,
+              borderRadius: radius.full,
               backgroundColor: correct >= 8 ? colors.secondaryContainer : correct >= 5 ? colors.tertiaryFixed : colors.errorContainer,
               alignItems: 'center',
               justifyContent: 'center',
