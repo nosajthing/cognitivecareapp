@@ -17,7 +17,7 @@ const en = {
   tryAgain: 'Try Again',
 
   // Auth – Signup
-  welcomeTitle: 'Welcome to\nCognitiveCare',
+  welcomeTitle: 'Welcome to\nHippoCare',
   welcomeSubtitle: "Your personal cognitive health companion. Let's get to know you.",
   yourName: 'Your name',
   namePlaceholder: 'Arthur Anderson',
@@ -77,7 +77,7 @@ const en = {
   dailyTraining: 'Daily Training',
 
   // Home
-  headerCognitiveCare: 'CognitiveCare',
+  headerCognitiveCare: 'HippoCare',
   greetingMorning: 'Good morning',
   greetingAfternoon: 'Good afternoon',
   greetingEvening: 'Good evening',
@@ -194,7 +194,7 @@ const en = {
   // Services
   headerServices: 'Care Services',
   eliteMembership: 'ELITE MEMBERSHIP',
-  familyPlus: 'CognitiveCare Family Plus',
+  familyPlus: 'HippoCare Family Plus',
   familyPlusDesc: 'Comprehensive cognitive support for up to 4 family members, including monthly health audits and 24/7 specialist access.',
   conciergeSpecialist: 'Dedicated Concierge Specialist',
   homeVisit: 'Home-Visit Health Screenings',
@@ -365,7 +365,7 @@ const en = {
   settingsDailyReminder: 'Daily Reminder',
   settingsReminderTime: 'Reminder Time',
   settingsAbout: 'About',
-  settingsAboutText: 'CognitiveCare helps you track and improve your cognitive health through AI-powered voice assessments and daily brain training.',
+  settingsAboutText: 'HippoCare helps you track and improve your cognitive health through AI-powered voice assessments and daily brain training.',
   settingsVersion: 'Version {{version}}',
   settingsResetAll: 'Reset All Data',
   settingsResetConfirm: 'This will delete all your data including profile and assessments. Are you sure?',
@@ -445,7 +445,7 @@ const en = {
 
   // Report sharing + screening keys
   shareReport: 'Share Report',
-  shareReportTitle: 'CognitiveCare Assessment Report',
+  shareReportTitle: 'HippoCare Assessment Report',
   shareDate: 'Date',
   shareScore: 'Overall Score',
   shareRisk: 'Risk Level',
@@ -467,7 +467,7 @@ const zh: typeof en = {
   tryAgain: '重试',
 
   // Auth – Signup
-  welcomeTitle: '欢迎使用\nCognitiveCare',
+  welcomeTitle: '欢迎使用\n海马健康',
   welcomeSubtitle: '您的私人认知健康伙伴。让我们来了解您。',
   yourName: '您的姓名',
   namePlaceholder: '张三',
@@ -527,7 +527,7 @@ const zh: typeof en = {
   dailyTraining: '每日训练',
 
   // Home
-  headerCognitiveCare: 'CognitiveCare',
+  headerCognitiveCare: '海马健康',
   greetingMorning: '早上好',
   greetingAfternoon: '下午好',
   greetingEvening: '晚上好',
@@ -644,7 +644,7 @@ const zh: typeof en = {
   // Services
   headerServices: '关怀服务',
   eliteMembership: '尊享会员',
-  familyPlus: 'CognitiveCare 家庭尊享版',
+  familyPlus: '海马健康 家庭尊享版',
   familyPlusDesc: '为最多4位家庭成员提供全面的认知支持，包括每月健康审查和全天候专家咨询。',
   conciergeSpecialist: '专属管家式专家',
   homeVisit: '上门健康筛查',
@@ -815,7 +815,7 @@ const zh: typeof en = {
   settingsDailyReminder: '每日提醒',
   settingsReminderTime: '提醒时间',
   settingsAbout: '关于',
-  settingsAboutText: 'CognitiveCare 通过AI语音评估和每日大脑训练，帮助您追踪和改善认知健康。',
+  settingsAboutText: '海马健康 通过AI语音评估和每日大脑训练，帮助您追踪和改善认知健康。',
   settingsVersion: '版本 {{version}}',
   settingsResetAll: '重置所有数据',
   settingsResetConfirm: '这将删除您的所有数据，包括个人资料和评估记录。确定要继续吗？',
@@ -895,7 +895,7 @@ const zh: typeof en = {
 
   // Report sharing + screening keys
   shareReport: '分享报告',
-  shareReportTitle: 'CognitiveCare 认知评估报告',
+  shareReportTitle: '海马健康 认知评估报告',
   shareDate: '日期',
   shareScore: '综合评分',
   shareRisk: '风险等级',

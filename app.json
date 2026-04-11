@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "CognitiveCare",
+    "name": "HippoCare",
     "slug": "cognitivecare",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "CognitiveCare needs microphone access to conduct voice-based cognitive assessments."
+        "NSMicrophoneUsageDescription": "HippoCare needs microphone access to conduct voice-based cognitive assessments."
       }
     },
     "android": {
@@ -39,7 +39,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "CognitiveCare needs microphone access to conduct voice-based cognitive assessments."
+          "microphonePermission": "HippoCare needs microphone access to conduct voice-based cognitive assessments."
         }
       ],
       "expo-font"
