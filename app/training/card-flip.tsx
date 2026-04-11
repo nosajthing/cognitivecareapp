@@ -201,7 +201,7 @@ export default function CardFlipGame() {
           {/* Star display */}
           <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
             {[1, 2, 3].map((star) => (
-              <Text key={star} style={{ fontSize: 36 }}>
+              <Text key={star} style={{ fontSize: 32 }}>
                 {star <= stars ? '★' : '☆'}
               </Text>
             ))}
@@ -404,7 +404,7 @@ export default function CardFlipGame() {
                     backfaceVisibility: 'hidden',
                   }}
                 >
-                  <Text style={{ fontSize: 28, color: colors.onPrimary, fontWeight: '700' }}>
+                  <Text style={{ ...type.headlineLg, color: colors.onPrimary }}>
                     ?
                   </Text>
                 </Animated.View>
