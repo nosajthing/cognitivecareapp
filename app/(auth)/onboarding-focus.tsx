@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { colors, type } from '../../lib/theme';
+import { colors, type, spacing } from '../../lib/theme';
 import { updateProfile, type FocusArea } from '../../lib/profileStore';
 import { OnboardingScaffold } from '../../components/OnboardingScaffold';
 import { useTranslation } from '../../lib/i18n';
@@ -57,8 +57,8 @@ export default function OnboardingFocus() {
               style={({ pressed }) => ({
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 16,
-                paddingHorizontal: 20,
+                gap: spacing.md,
+                paddingHorizontal: spacing.lg,
                 paddingVertical: 18,
                 borderRadius: 20,
                 backgroundColor: isSelected ? colors.secondaryContainer : colors.surfaceContainerLowest,
@@ -84,7 +84,7 @@ export default function OnboardingFocus() {
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ ...type.titleLg, color: colors.onSurface, fontSize: 18 }}>
+                <Text style={{ ...type.titleLg, color: colors.onSurface }}>
                   {t(a.labelKey)}
                 </Text>
                 <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant, marginTop: 2 }}>
