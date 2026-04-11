@@ -42,3 +42,6 @@ yarn-error.*
 /android
 .gstack/
 .superpowers/
+
+# iOS Simulator screenshot exports (session scratch, not source)
+design-exports/
