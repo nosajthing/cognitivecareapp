@@ -3,7 +3,7 @@ import { ScrollView, View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors, type, radius, shadow } from '../../lib/theme';
+import { colors, type, radius, shadow, spacing } from '../../lib/theme';
 import { ScoreRing } from '../../components/ScoreRing';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import {
@@ -48,7 +48,7 @@ export default function Screening() {
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScreenHeader title={t('headerScreening')} />
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120, gap: 24 }}
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: 120, gap: spacing.xl }}
         showsVerticalScrollIndicator={false}
       >
         {/* Status */}
@@ -88,9 +88,9 @@ export default function Screening() {
           onPress={() => router.push('/assessment/record')}
           style={({ pressed }) => ({
             backgroundColor: colors.surfaceContainerLowest,
-            borderRadius: 36,
+            borderRadius: radius.xl,
             padding: 28,
-            gap: 16,
+            gap: spacing.md,
             opacity: pressed ? 0.95 : 1,
             ...shadow.card,
           })}
@@ -134,9 +134,9 @@ export default function Screening() {
           onPress={() => router.push('/(tabs)/training')}
           style={({ pressed }) => ({
             backgroundColor: colors.surfaceContainerLowest,
-            borderRadius: 36,
+            borderRadius: radius.xl,
             padding: 28,
-            gap: 16,
+            gap: spacing.md,
             opacity: pressed ? 0.95 : 1,
             ...shadow.card,
           })}
