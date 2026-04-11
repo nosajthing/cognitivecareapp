@@ -143,8 +143,7 @@ export default function Report() {
             </Text>
             <Text
               style={{
-                fontSize: 28,
-                fontWeight: '700',
+                ...type.headlineLg,
                 color: '#fff',
                 lineHeight: 36,
                 letterSpacing: -0.5,
