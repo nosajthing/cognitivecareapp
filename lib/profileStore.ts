@@ -141,7 +141,8 @@ export async function addAssessment(record: Omit<AssessmentRecord, 'id' | 'date'
 
 export async function resetAll() {
   state = { profile: null, assessments: [], hydrated: true };
-  await AsyncStorage.multiRemove([K_PROFILE, K_ASSESSMENTS]);
+  training = { date: '', completed: [] };
+  await AsyncStorage.multiRemove([K_PROFILE, K_ASSESSMENTS, K_TRAINING]);
   emit();
 }
 

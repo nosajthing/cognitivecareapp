@@ -51,10 +51,10 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Build last 7 days for activity grid
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
+  // Build 7 days starting from today for activity grid
+  const next7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
+    d.setDate(d.getDate() + i);
     d.setHours(0, 0, 0, 0);
     return d;
   });
@@ -189,7 +189,7 @@ export default function Home() {
           >
             {/* 7-day row */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {last7Days.map((day, i) => {
+              {next7Days.map((day, i) => {
                 const isToday = day.toDateString() === new Date().toDateString();
                 const score = assessmentsByDay.get(day.toDateString());
                 const hasAssessment = score !== undefined;
