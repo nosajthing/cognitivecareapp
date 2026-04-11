@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors, type } from '../../lib/theme';
+import { colors, type, spacing } from '../../lib/theme';
 import { updateProfile } from '../../lib/profileStore';
 import { OnboardingScaffold } from '../../components/OnboardingScaffold';
 import { useTranslation } from '../../lib/i18n';
@@ -45,7 +45,7 @@ export default function OnboardingBirthYear() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                paddingHorizontal: 20,
+                paddingHorizontal: spacing.lg,
                 paddingVertical: 18,
                 borderRadius: 16,
                 backgroundColor: selected ? colors.primary : colors.surfaceContainerLowest,
@@ -58,7 +58,6 @@ export default function OnboardingBirthYear() {
                 style={{
                   ...type.titleLg,
                   color: selected ? '#fff' : colors.onSurface,
-                  fontSize: 20,
                 }}
               >
                 {y}
