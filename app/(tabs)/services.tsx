@@ -191,7 +191,7 @@ function ProductCard({
 
       {/* Content area */}
       <View style={styles.cardContent}>
-        <Text style={{ ...typ.headlineSm, color: colors.onSurface }} numberOfLines={1}>
+        <Text style={{ ...typ.titleLg, color: colors.onSurface }} numberOfLines={1}>
           {item.title[locale]}
         </Text>
         <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }} numberOfLines={2}>
