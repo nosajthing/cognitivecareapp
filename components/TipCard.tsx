@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, type, radius, spacing } from '../lib/theme';
+import { colors, type, radius, spacing, shadow } from '../lib/theme';
 import { useTranslation } from '../lib/i18n';
 import { hydrateTips, isDismissed, dismissTip, restoreTips } from '../lib/tipStore';
 
@@ -38,7 +38,7 @@ export function TipCard({ tipId, icon, titleKey, bodyKey }: TipCardProps) {
         gap: spacing.sm,
       }}
     >
-      <Text style={{ fontSize: 18 }}>{icon}</Text>
+      <Text style={{ fontSize: 20 }}>{icon}</Text>
       <View style={{ flex: 1 }}>
         <Text style={{ ...type.labelLg, color: colors.onSecondaryContainer, marginBottom: 2 }}>
           {t(titleKey as any)}
@@ -89,11 +89,7 @@ export function TipRestoreButton({ tipIds }: { tipIds: string[] }) {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
+        ...shadow.card,
       }}
     >
       <Text style={{ fontSize: 16 }}>💡</Text>
