@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import { View, Text, Platform } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
-import { colors, type, spacing } from '../../lib/theme';
+import { colors, type, spacing, shadow } from '../../lib/theme';
 import { updateProfile } from '../../lib/profileStore';
 import { OnboardingScaffold } from '../../components/OnboardingScaffold';
 import { useTranslation } from '../../lib/i18n';
 
 const THIS_YEAR = new Date().getFullYear();
-// Offer ages 50 to 90 (birth years)
-const YEARS = Array.from({ length: 41 }, (_, i) => THIS_YEAR - 50 - i);
+// Offer ages 30 to 100 (so birth years run THIS_YEAR-30 down to THIS_YEAR-100)
+const YEARS = Array.from({ length: 71 }, (_, i) => THIS_YEAR - 30 - i);
 
 export default function OnboardingBirthYear() {
   const router = useRouter();
@@ -18,62 +19,86 @@ export default function OnboardingBirthYear() {
   async function onContinue() {
     if (!year) return;
     await updateProfile({ birthYear: year });
-    router.push('/(auth)/onboarding-focus');
+    router.push('/(auth)/onboarding-sex');
   }
 
   return (
     <OnboardingScaffold
       step={1}
-      total={3}
+      total={5}
       title={t('birthYearTitle')}
       subtitle={t('birthYearSubtitle')}
       canContinue={year !== null}
       onContinue={onContinue}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 12, gap: 12 }}
-      >
-        {YEARS.map((y) => {
-          const age = THIS_YEAR - y;
-          const selected = year === y;
-          return (
-            <Pressable
-              key={y}
-              onPress={() => setYear(y)}
-              style={({ pressed }) => ({
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: spacing.lg,
-                paddingVertical: 18,
-                borderRadius: 16,
-                backgroundColor: selected ? colors.primary : colors.surfaceContainerLowest,
-                borderWidth: 1,
-                borderColor: selected ? colors.primary : colors.outlineVariant,
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Text
-                style={{
-                  ...type.titleLg,
-                  color: selected ? '#fff' : colors.onSurface,
-                }}
-              >
-                {y}
-              </Text>
-              <Text
-                style={{
-                  ...type.bodyMd,
-                  color: selected ? 'rgba(255,255,255,0.8)' : colors.outline,
-                }}
-              >
-                {t('age', { age })}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <View style={{ flex: 1, justifyContent: 'center', gap: spacing.lg }}>
+        <View
+          style={{
+            backgroundColor: colors.surfaceContainerLowest,
+            borderRadius: 24,
+            borderWidth: 1,
+            borderColor: colors.outlineVariant,
+            paddingHorizontal: spacing.lg,
+            paddingVertical: Platform.OS === 'ios' ? spacing.sm : spacing.md,
+            ...shadow.soft,
+          }}
+        >
+          <Text
+            style={{
+              ...type.labelMd,
+              color: colors.onSurfaceVariant,
+              textTransform: 'uppercase',
+              marginTop: spacing.sm,
+            }}
+          >
+            {t('birthYearPlaceholder')}
+          </Text>
+          <Picker
+            selectedValue={year ?? 0}
+            onValueChange={(v) => setYear(v === 0 ? null : Number(v))}
+            itemStyle={{
+              fontSize: 22,
+              color: colors.onSurface,
+              height: 200,
+            }}
+            dropdownIconColor={colors.primary}
+            mode="dropdown"
+          >
+            <Picker.Item
+              label={t('birthYearPlaceholder')}
+              value={0}
+              color={colors.outline}
+            />
+            {YEARS.map((y) => {
+              const age = THIS_YEAR - y;
+              return (
+                <Picker.Item
+                  key={y}
+                  label={`${y}  ·  ${t('age', { age })}`}
+                  value={y}
+                  color={colors.onSurface}
+                />
+              );
+            })}
+          </Picker>
+        </View>
+
+        {year != null && (
+          <View
+            style={{
+              backgroundColor: colors.secondaryContainer,
+              borderRadius: 20,
+              paddingHorizontal: spacing.lg,
+              paddingVertical: spacing.md,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ ...type.titleLg, color: colors.onSecondaryContainer }}>
+              {t('age', { age: THIS_YEAR - year })}
+            </Text>
+          </View>
+        )}
+      </View>
     </OnboardingScaffold>
   );
 }

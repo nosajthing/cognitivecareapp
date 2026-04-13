@@ -37,8 +37,10 @@ Custom stores using `AsyncStorage` + `useSyncExternalStore`:
 
 ### API Layer (`lib/openai.ts`, `lib/oss.ts`)
 - `transcribeAudio(uri, locale)` — Upload to OSS, then stream SSE from Qwen omni model
-- `analyzeAssessment(transcript, promptContext, locale)` — Chat completion returning JSON `AssessmentReport`
+- `analyzeAssessment(transcript, promptContext, locale, patient?)` — Chat completion returning JSON `AssessmentReport`. Optional `PatientContext` (age, sex, educationYears, handedness, family history) is injected into the prompt and used by the grader to apply MoCA-style adjustments.
+- `analyzeClockDrawing(imageUrl, locale, patient?)` — Vision call returning JSON `AssessmentReport`. Same optional `PatientContext`; calibrates clock-drawing interpretation against handedness, age, and education years.
 - `uploadAudioToOSS(localUri)` — Public bucket PUT, returns URL
+- `getPatientContext(profile)` (in `lib/profileStore.ts`) — Build a `PatientContext` from a `UserProfile`. Empty when profile is null or no demographic fields are set.
 
 ### Design System (`lib/theme.ts`)
 Material 3 tokens — primary teal `#004d5b`, spacing scale (xs:4 through xxl:48), border radius (sm:8 through full:9999), card/soft shadows. All components use these tokens directly.

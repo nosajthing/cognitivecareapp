@@ -18,7 +18,8 @@ const en = {
 
   // Auth – Signup
   welcomeTitle: 'Welcome to\nHippoCare',
-  welcomeSubtitle: "Your personal cognitive health companion. Let's get to know you.",
+  welcomeSubtitle:
+    'Our name comes from the hippocampus — the brain\u2019s memory center, named after the seahorse it resembles (海马 in Chinese). Protecting it is what we\u2019re here for.',
   yourName: 'Your name',
   namePlaceholder: 'Arthur Anderson',
   email: 'Email',
@@ -28,11 +29,40 @@ const en = {
 
   // Auth – Birth year
   birthYearTitle: 'What year were you born?',
-  birthYearSubtitle: 'This helps us personalize your cognitive baseline.',
+  birthYearSubtitle: 'Age and education are the two strongest signals for personalizing your cognitive baseline.',
+  birthYearPlaceholder: 'Select your birth year',
   age: 'Age {{age}}',
 
+  // Auth – Sex
+  sexTitle: 'How do you describe yourself?',
+  sexSubtitle: 'Sex is used only to calibrate your cognitive baseline against age- and sex-matched norms.',
+  sexMale: 'Male',
+  sexFemale: 'Female',
+  sexUnspecified: 'Prefer not to say',
+
+  // Auth – Handedness
+  handednessTitle: 'Which hand do you write with?',
+  handednessSubtitle: 'This helps us interpret your clock drawing fairly — left-handed strokes can look different and that is normal.',
+  handRight: 'Right hand',
+  handLeft: 'Left hand',
+  handBoth: 'Both hands',
+
+  // Auth – Education (years of formal schooling)
+  educationYearsTitle: 'How many years of school have you completed?',
+  educationYearsSubtitle: 'Years of formal schooling shape expected vocabulary and is the standard MoCA score adjustment. Pick anywhere from 0 to 20+.',
+  educationYearsPlaceholder: 'Select years of schooling',
+  educationYearsValue: '{{years}} years',
+  educationYearsPlus: '20+ years',
+
+  // Auth – Family history
+  familyHistoryTitle: 'Has anyone in your immediate family been diagnosed with dementia?',
+  familyHistorySubtitle: 'Parents, siblings, or grandparents. This stays private and only personalizes your context — it is not a diagnosis of you.',
+  familyHistoryYes: 'Yes',
+  familyHistoryNo: 'No',
+  familyHistoryUnsure: 'Not sure',
+
   // Auth – Focus
-  focusTitle: 'What matters most to you?',
+  focusTitle: 'Which area concerns you most?',
   focusSubtitle: "Pick what you'd like to strengthen. You can choose more than one.",
   focusMemory: 'Memory',
   focusMemoryDesc: 'Remembering names, dates, errands',
@@ -40,20 +70,16 @@ const en = {
   focusLanguageDesc: 'Finding the right words',
   focusAttention: 'Attention',
   focusAttentionDesc: 'Staying focused',
-  focusSleep: 'Sleep',
-  focusSleepDesc: 'Rest and recovery',
+  focusMood: 'Mood & wellbeing',
+  focusMoodDesc: 'Emotional balance and outlook',
   focusSocial: 'Staying social',
   focusSocialDesc: 'Connection with family & friends',
 
   // Auth – Ready
   readyTitle: "You're all set,\n{{name}}.",
-  readySubtitle: "Let's establish your cognitive baseline with a 60-second voice check-in.",
+  readySubtitle: 'Your home dashboard is ready whenever you are. Take a check-in when it feels right — there is no rush.',
   startFirstCheckIn: 'Start My First Check-In',
-  howItWorks: 'How it works',
-  howItWorksBody: "You'll hear a simple prompt. Speak naturally for about a minute about whatever comes to mind.",
-  speakNormal: 'Speak in your normal voice',
-  noWrongAnswers: 'There are no wrong answers',
-  recordingPrivate: 'Your recording stays private',
+  goToHome: 'Go to Home',
 
   // Tabs
   tabHome: 'Home',
@@ -240,7 +266,7 @@ const en = {
   promptMemory: 'Tell me about a memory from this past week that made you smile.',
   promptLanguage: "Describe your favorite meal — what's in it and why you love it.",
   promptAttention: 'Walk me through your morning routine, step by step.',
-  promptSleep: 'Describe how you slept last night and how you feel right now.',
+  promptMood: 'Describe how you have been feeling lately and what is on your mind.',
   promptSocial: 'Tell me about someone in your life you spoke to recently.',
   promptDefault: 'Tell me about your morning — what you did, what you ate, anything on your mind.',
 
@@ -265,6 +291,84 @@ const en = {
   wordSequencing: 'sequencing',
   wordReasoning: 'reasoning',
 
+  // Clock Drawing Test
+  homeClockCardTitle: 'Try a clinical clock test',
+  homeClockCardBody: 'A 2-minute drawing the AI scores like a clinician.',
+  homeClockCardCta: 'Start drawing',
+  clockTestName: 'Clock Drawing Test',
+  clockTestTitle: 'Draw a Clock',
+  clockTestPrompt: 'Draw a clock face with all the numbers. Then set the hands to 10 past 11.',
+  clockTestCaption: 'Take your time. There is no perfect drawing.',
+  clockUndo: 'Undo',
+  clockClear: 'Clear',
+  clockSubmit: 'Submit Drawing',
+  clockStepCapturing: 'Capturing your drawing…',
+  clockStepUploading: 'Uploading securely…',
+  clockStepAnalyzing: 'Reading your clock…',
+  clockBadge: 'Drawing',
+
+  // Cognitive Decline Screening Questionnaire
+  homeQuestionnaireCardTitle: 'Cognitive screening checklist',
+  homeQuestionnaireCardBody: '11 quick yes/no questions. About 2 minutes, no recording.',
+  questionnaireTitle: 'Cognitive Screening',
+  questionnaireIntro:
+    'Eleven short questions about memory, mood, and daily life. There are no right or wrong answers — answer how things have felt over the past few weeks.',
+  questionnaireProgress: '{{current}} / {{total}}',
+  questionnaireBack: 'Back',
+  questionnaireBadge: 'Screening',
+  basedOnQuestionnaire: 'Based on your screening checklist.',
+  answerYes: 'Yes',
+  answerNo: 'No',
+  answerSometimes: 'Sometimes',
+  // 11 questions (English translations of the source clinical checklist)
+  q1: 'Do you often forget things that just happened — for example, putting something down and immediately losing track of it, or asking the same question twice?',
+  q2: 'For important events from years ago (your wedding date, your children\u2019s names), is your memory of them still clear?',
+  q3: 'If someone tells you a phone number or address and you don\u2019t write it down right away, can you still recall it a few minutes later?',
+  q4: 'During conversations, do familiar words or names often sit on the tip of your tongue without coming out?',
+  q5: 'Have you ever suddenly lost your way or gone the wrong direction in a familiar place — your usual supermarket, your neighborhood, or the route home?',
+  q6: 'Have you ever put your clothes on inside-out, buttoned them wrong, or worn them backwards without noticing?',
+  q7: 'Things you used to do easily — riding a bike, playing mahjong, using the washing machine — are you doing them more slowly now, or making more mistakes?',
+  q8: 'In the last few months, have you become less tidy, lost interest in family or hobbies, grown suspicious, or felt unexpectedly tearful?',
+  q9: 'Has your sleep changed noticeably — waking often at night, dozing during the day, or feeling restless at sunset?',
+  q10: 'When handling money (paying bills, doing math), using the TV remote, or using a smartphone, do you find it harder than before or make more mistakes?',
+  q11: 'Does your sense of smell feel weaker than it used to — for example, you can\u2019t smell food cooking or smell odors in the bathroom?',
+  // Result templates
+  qHeadlineLow: 'Your screening shows your day-to-day cognitive picture is within a typical range.',
+  qHeadlineModerate: 'Your screening shows a few signals worth keeping an eye on.',
+  qHeadlineElevated: 'Your screening shows several signals that warrant a professional evaluation.',
+  qAnalysisLow:
+    'Across all eleven questions you reported no clear symptom signals. This is a healthy baseline — repeating the checklist every few months helps you spot any change early.',
+  qAnalysisYesCount:
+    'You marked {{count}} question(s) as a clear symptom signal. The source clinical guide treats three or more as a prompt to seek a professional evaluation.',
+  qAnalysisFlagDaily:
+    'At least one of the daily-living questions (5, 6, 7, or 10) is flagged, which the guide highlights as a priority because it suggests everyday function may be affected.',
+  qAnalysisFlagBehavior:
+    'Question 8 is flagged, which points to changes in mood, personality, or self-care that are worth discussing with someone who knows you well.',
+  qAnalysisFlagSmell:
+    'Question 11 is flagged. A weakened sense of smell is a recognized early marker of Parkinson\u2019s disease and Alzheimer\u2019s disease and deserves attention.',
+  qRecObserve:
+    'Take this checklist again every 1\u20133 months and compare results — the trend over time matters as much as any single answer.',
+  qRecSeeNeurology:
+    'Schedule an appointment with a neurologist or memory clinic and share these answers with the doctor.',
+  qRecDailyLiving:
+    'Ask a family member to gently watch for the daily-living changes flagged here, and note any concrete examples to bring to the doctor.',
+  qRecBehavior:
+    'Pay attention to mood, personality, and self-care over the next few weeks — these can shift before memory does.',
+  qRecSmell:
+    'Mention the change in your sense of smell at your next appointment; it\u2019s a small but clinically meaningful sign.',
+  qFlagDaily: 'Daily living',
+  qFlagBehavior: 'Mood & behavior',
+  qFlagSmell: 'Smell',
+
+  wordSymmetry: 'symmetry',
+  wordSpacing: 'spacing',
+  wordNumbers: 'numbers',
+  wordHands: 'hands',
+  wordPlanning: 'planning',
+  wordVisuospatial: 'visuospatial',
+  wordExecutive: 'executive',
+  wordCognition: 'cognition',
+
   // Report
   yourReport: 'Your Report',
   todaysInsight: "TODAY'S INSIGHT",
@@ -277,9 +381,14 @@ const en = {
   dimExecutive: 'Executive',
   wordsYouUsed: 'Words You Used',
   aiAnalysis: 'AI Analysis',
+  listenToAnalysis: 'Listen to analysis',
+  stopListening: 'Stop',
   recommendations: 'Recommendations',
   yourWords: 'Your words',
   takeAnother: 'Take Another Assessment',
+  deeperScreeningTitle: 'Consider a deeper brain screening',
+  deeperScreeningBody: "Your results suggest it's worth taking a closer look with our clinical EEG·rTMS brain screening.",
+  deeperScreeningCta: 'View screening service',
   noReportAvailable: 'No report available. Start a new assessment.',
   startAssessment: 'Start Assessment',
 
@@ -359,6 +468,11 @@ const en = {
   settingsName: 'Name',
   settingsEmail: 'Email',
   settingsBirthYear: 'Birth Year',
+  settingsSex: 'Sex',
+  settingsHandedness: 'Handedness',
+  settingsEducation: 'Education',
+  settingsFamilyHistory: 'Family History',
+  settingsNotSet: 'Not set',
   settingsFocusAreas: 'Focus Areas',
   settingsLanguage: 'Language',
   settingsNotifications: 'Notifications',
@@ -396,14 +510,14 @@ const en = {
   servicesOrganFunction: 'Liver & kidney function',
   servicesBloodPanel: 'CBC / glucose / lipids / B12',
   servicesPrimeTitle: 'Health Protection',
-  servicesPrimeSub: 'Prosper Health × Allianz',
+  servicesPrimeSub: 'Basheng Health — premium inpatient coverage',
   servicesPrimeName: 'Prime',
   servicesPrimeCoverage: 'Coverage',
   servicesPrimeDeductible: 'Deductible from',
   servicesPrimeHospital: 'Hospitalization',
   servicesPrimeTags: 'VIP Wards|Pre-existing OK|Health Concierge|Fast Track',
   servicesLearnMore: 'Learn More',
-  servicesPrimeDetailTitle: 'Prime Health Protection',
+  servicesPrimeDetailTitle: 'Basheng Premium Health Protection',
   servicesPrimeDetail1: 'Global coverage including hospitalization, specialist outpatient, VIP/International wards',
   servicesPrimeDetail2: 'Overseas cancer treatment direct billing (up to ¥6M)',
   servicesPrimeDetail3: 'Pre-existing conditions accepted (6-month stable period)',
@@ -457,6 +571,13 @@ const en = {
   shareAttention: 'Attention',
   shareExecutive: 'Executive',
   cognitiveGamesDesc: 'Train memory, language, and attention through fun games.',
+
+  // Launch screen
+  launchAppName: 'HippoCare',
+  launchAppNameSecondary: '海马健康',
+  launchTagline: 'Cognitive health, inspired by memory itself.',
+  launchExplanation:
+    'Our name comes from the hippocampus — the brain\u2019s memory center, whose name literally means "sea horse" in Greek and 海马体 in Chinese. The little seahorse is our reminder that memory is something worth protecting.',
 };
 
 const zh: typeof en = {
@@ -468,7 +589,8 @@ const zh: typeof en = {
 
   // Auth – Signup
   welcomeTitle: '欢迎使用\n海马健康',
-  welcomeSubtitle: '您的私人认知健康伙伴。让我们来了解您。',
+  welcomeSubtitle:
+    '我们的名字源于"海马体"——大脑中掌管记忆的区域，因形似海马而得名。守护这片小小的"海马"，正是我们的初心。',
   yourName: '您的姓名',
   namePlaceholder: '张三',
   email: '电子邮箱',
@@ -478,11 +600,40 @@ const zh: typeof en = {
 
   // Auth – Birth year
   birthYearTitle: '您的出生年份是？',
-  birthYearSubtitle: '这有助于我们为您定制认知基准。',
+  birthYearSubtitle: '年龄和受教育程度是个性化认知基准最重要的两个变量。',
+  birthYearPlaceholder: '请选择出生年份',
   age: '{{age}}岁',
 
+  // Auth – Sex
+  sexTitle: '您的性别是？',
+  sexSubtitle: '性别仅用于将您的认知基准与同年龄、同性别人群进行比对。',
+  sexMale: '男',
+  sexFemale: '女',
+  sexUnspecified: '不愿透露',
+
+  // Auth – Handedness
+  handednessTitle: '您习惯用哪只手写字？',
+  handednessSubtitle: '这有助于我们公正地解读您的画钟测试——左手作画的笔触本就不同，属于正常现象。',
+  handRight: '右手',
+  handLeft: '左手',
+  handBoth: '左右手都用',
+
+  // Auth – Education (years of formal schooling)
+  educationYearsTitle: '您接受过多少年的学校教育？',
+  educationYearsSubtitle: '受教育年限会影响词汇预期，是 MoCA 测评的标准调整项。可灵活选择 0 至 20 年以上。',
+  educationYearsPlaceholder: '请选择受教育年限',
+  educationYearsValue: '{{years}} 年',
+  educationYearsPlus: '20 年以上',
+
+  // Auth – Family history
+  familyHistoryTitle: '您的直系亲属中是否有人被诊断过失智症（认知障碍）？',
+  familyHistorySubtitle: '包括父母、兄弟姐妹或祖父母。此信息仅用于个性化解读，不代表您本人会患病，且仅保存在本地。',
+  familyHistoryYes: '有',
+  familyHistoryNo: '没有',
+  familyHistoryUnsure: '不确定',
+
   // Auth – Focus
-  focusTitle: '什么对您最重要？',
+  focusTitle: '您有哪方面的障碍最困扰？',
   focusSubtitle: '选择您想要加强的方面，可多选。',
   focusMemory: '记忆力',
   focusMemoryDesc: '记住名字、日期和日常事务',
@@ -490,20 +641,16 @@ const zh: typeof en = {
   focusLanguageDesc: '准确地遣词用句',
   focusAttention: '注意力',
   focusAttentionDesc: '保持专注',
-  focusSleep: '睡眠',
-  focusSleepDesc: '休息与恢复',
+  focusMood: '心情健康',
+  focusMoodDesc: '情绪与心理状态',
   focusSocial: '社交活动',
   focusSocialDesc: '与家人朋友保持联系',
 
   // Auth – Ready
   readyTitle: '一切就绪，\n{{name}}。',
-  readySubtitle: '让我们通过60秒的语音测试建立您的认知基准。',
+  readySubtitle: '您的主页随时为您准备好。无需着急，等您愿意时再做测试即可。',
   startFirstCheckIn: '开始我的首次测试',
-  howItWorks: '使用说明',
-  howItWorksBody: '您将看到一个简单的提示。请自然地说出您想到的任何内容，大约一分钟。',
-  speakNormal: '用您正常的语速说话',
-  noWrongAnswers: '没有标准答案',
-  recordingPrivate: '您的录音将完全保密',
+  goToHome: '前往首页',
 
   // Tabs
   tabHome: '首页',
@@ -690,7 +837,7 @@ const zh: typeof en = {
   promptMemory: '告诉我这周让您微笑的一段回忆。',
   promptLanguage: '描述一下您最喜欢的一道菜——它有什么食材，为什么喜欢它。',
   promptAttention: '请一步步地描述您的早晨日常。',
-  promptSleep: '描述一下您昨晚的睡眠情况和现在的感受。',
+  promptMood: '描述一下您最近的心情和有什么事萦绕心头。',
   promptSocial: '告诉我您最近和谁聊过天。',
   promptDefault: '跟我说说您的早晨——做了什么、吃了什么、有什么想法。',
 
@@ -715,6 +862,74 @@ const zh: typeof en = {
   wordSequencing: '排序',
   wordReasoning: '推理',
 
+  // Clock Drawing Test
+  homeClockCardTitle: '试试临床画钟测试',
+  homeClockCardBody: '两分钟的画作，AI 像临床医生一样为您评分。',
+  homeClockCardCta: '开始绘画',
+  clockTestName: '画钟测试',
+  clockTestTitle: '画一个时钟',
+  clockTestPrompt: '画一个钟面，写上所有数字，然后把指针拨到 11 点 10 分。',
+  clockTestCaption: '慢慢来，没有完美的画法。',
+  clockUndo: '撤销',
+  clockClear: '清除',
+  clockSubmit: '提交画作',
+  clockStepCapturing: '正在截取您的画作…',
+  clockStepUploading: '正在安全上传…',
+  clockStepAnalyzing: '正在解读您的时钟…',
+  clockBadge: '绘图',
+
+  // 认知功能下降初步筛查问卷
+  homeQuestionnaireCardTitle: '认知筛查清单',
+  homeQuestionnaireCardBody: '11 道是非题，约 2 分钟完成，无需录音。',
+  questionnaireTitle: '认知筛查',
+  questionnaireIntro:
+    '11 道关于记忆、情绪和日常生活的小问题。没有对错，请根据最近几周的真实感受作答。',
+  questionnaireProgress: '{{current}} / {{total}}',
+  questionnaireBack: '上一题',
+  questionnaireBadge: '筛查',
+  basedOnQuestionnaire: '基于您填写的筛查清单。',
+  answerYes: '是',
+  answerNo: '否',
+  answerSometimes: '偶尔',
+  // 11 道筛查问题（来自临床参考清单）
+  q1: '您是否经常忘记刚发生的事，比如放下东西后转身就找不到，或重复问同一个问题？',
+  q2: '对于多年前的重要事件（如结婚日期、子女名字），您的记忆是否依然清晰？',
+  q3: '别人刚告诉您的电话号码或地址，如果不立即记录，几分钟后您还能记住吗？',
+  q4: '与人交谈时，您是否经常话到嘴边却想不起熟悉的词语或人名？',
+  q5: '在常去的超市、小区或回家路上，您是否有过突然迷路或走错方向的情况？',
+  q6: '您是否有过穿衣穿反、扣子系错，或衣服穿反了也没发现的情况？',
+  q7: '您以前熟练的事（如骑自行车、打麻将、用洗衣机），现在是不是做得比以前慢了或经常出错？',
+  q8: '近几个月，您是否变得不修边幅、邋遢，对家人漠不关心、容易多疑、莫名其妙伤感，或对以往的爱好失去热情？',
+  q9: '您的睡眠模式是否有明显改变？比如夜间频繁醒来、白天嗜睡，或日落时分情绪焦躁？',
+  q10: '您处理财务（算账、缴费）、使用电视遥控器或使用智能手机时，是否感到比以前困难或容易出错？',
+  q11: '您是否觉得鼻子不如以前灵了？比如闻不出饭菜香、闻不到厕所臭味？',
+  // 结果模板
+  qHeadlineLow: '本次筛查显示，您的日常认知状态在正常范围内。',
+  qHeadlineModerate: '本次筛查发现一些值得继续关注的信号。',
+  qHeadlineElevated: '本次筛查显示多个需要专业评估的信号。',
+  qAnalysisLow: '11 道问题中没有明显的症状信号。这是一个健康的基线，建议每隔几个月再做一次，以便及早察觉变化。',
+  qAnalysisYesCount: '您在 {{count}} 道问题上给出了明显的症状信号。原始临床参考建议：达到 3 项及以上时，应尽早寻求专业评估。',
+  qAnalysisFlagDaily: '问题 5、6、7 或 10 中至少有一项亮起，源指南将其列为优先关注，因为这提示日常生活能力可能受到影响。',
+  qAnalysisFlagBehavior: '问题 8 亮起，提示情绪、性格或自我照顾方面的改变，建议与熟悉您的家人沟通。',
+  qAnalysisFlagSmell: '问题 11 亮起。嗅觉减退是帕金森病和阿尔茨海默病公认的早期标志，值得特别关注。',
+  qRecObserve: '建议每 1\u20133 个月再做一次本清单并对比结果——趋势比单次结果更有意义。',
+  qRecSeeNeurology: '尽早预约神经内科或记忆门诊，并将这些答案带给医生参考。',
+  qRecDailyLiving: '请家人留意日常生活中的相关变化，记录具体例子，下次就诊时一同带给医生。',
+  qRecBehavior: '在接下来几周关注情绪、性格和自我照顾的变化——这些信号往往比记忆改变出现得更早。',
+  qRecSmell: '下次就诊时主动告诉医生嗅觉的变化，这是一个细微但具有临床意义的信号。',
+  qFlagDaily: '日常生活',
+  qFlagBehavior: '情绪与行为',
+  qFlagSmell: '嗅觉',
+
+  wordSymmetry: '对称',
+  wordSpacing: '间距',
+  wordNumbers: '数字',
+  wordHands: '指针',
+  wordPlanning: '规划',
+  wordVisuospatial: '视觉空间',
+  wordExecutive: '执行',
+  wordCognition: '认知',
+
   // Report
   yourReport: '您的报告',
   todaysInsight: '今日洞察',
@@ -727,9 +942,14 @@ const zh: typeof en = {
   dimExecutive: '执行功能',
   wordsYouUsed: '您使用的词汇',
   aiAnalysis: 'AI 分析',
+  listenToAnalysis: '朗读分析',
+  stopListening: '停止朗读',
   recommendations: '建议',
   yourWords: '您的原话',
   takeAnother: '再做一次评估',
+  deeperScreeningTitle: '建议进一步做脑健康筛查',
+  deeperScreeningBody: '根据你的结果，建议接受我们的 EEG·rTMS 临床脑健康综合筛查，进一步全面评估。',
+  deeperScreeningCta: '查看筛查服务',
   noReportAvailable: '暂无报告。请开始新的评估。',
   startAssessment: '开始评估',
 
@@ -809,6 +1029,11 @@ const zh: typeof en = {
   settingsName: '姓名',
   settingsEmail: '邮箱',
   settingsBirthYear: '出生年份',
+  settingsSex: '性别',
+  settingsHandedness: '利手',
+  settingsEducation: '受教育程度',
+  settingsFamilyHistory: '家族史',
+  settingsNotSet: '未设置',
   settingsFocusAreas: '关注领域',
   settingsLanguage: '语言',
   settingsNotifications: '通知',
@@ -846,14 +1071,14 @@ const zh: typeof en = {
   servicesOrganFunction: '肝功能 / 肾功能',
   servicesBloodPanel: '血常规 / 血糖 / 血脂 / 铁蛋白 / 维生素B12',
   servicesPrimeTitle: '健康保障',
-  servicesPrimeSub: '万欣和 Prosper Health × 京东安联 Allianz',
+  servicesPrimeSub: '柏盛健康 · 高端住院医疗',
   servicesPrimeName: 'Prime',
   servicesPrimeCoverage: '住院保障',
   servicesPrimeDeductible: '免赔额低至',
   servicesPrimeHospital: '住院保障',
   servicesPrimeTags: '特需/VIP部|既往症可投|私人健康管家|绿色通道',
   servicesLearnMore: '了解更多',
-  servicesPrimeDetailTitle: '和睦致逸 高端医疗保险',
+  servicesPrimeDetailTitle: '柏盛健康 · 高端医疗保险',
   servicesPrimeDetail1: '保障覆盖全球，包含住院医疗、特定门诊、特需部/国际部/VIP部就诊',
   servicesPrimeDetail2: '恶性肿瘤海外就医直付（最高600万）',
   servicesPrimeDetail3: '既往症6个月稳定期可投保',
@@ -907,6 +1132,13 @@ const zh: typeof en = {
   shareAttention: '注意力',
   shareExecutive: '执行功能',
   cognitiveGamesDesc: '通过趣味游戏锻炼记忆力、语言和注意力。',
+
+  // Launch screen
+  launchAppName: '海马健康',
+  launchAppNameSecondary: 'HippoCare',
+  launchTagline: '守护记忆，从认知健康开始。',
+  launchExplanation:
+    '我们的名字源于"海马体"——大脑中负责记忆的区域。它的形状酷似海马，希腊语和中文都以"海马"为它命名。这只小海马，正是我们守护记忆的象征。',
 };
 
 // ---------------------------------------------------------------------------

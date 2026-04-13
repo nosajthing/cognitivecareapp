@@ -85,9 +85,11 @@ export default function BookingConfirm() {
                 {service.subtitle[loc]}
               </Text>
             </View>
-            <Text style={{ ...typ.headlineSm, color: colors.primary }}>
-              ¥{service.price.toLocaleString()}
-            </Text>
+            {!service.hidePrice && (
+              <Text style={{ ...typ.headlineSm, color: colors.primary }}>
+                ¥{service.price.toLocaleString()}
+              </Text>
+            )}
           </View>
         )}
 

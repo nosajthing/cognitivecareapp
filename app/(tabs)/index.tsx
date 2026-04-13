@@ -16,7 +16,7 @@ import {
   hydrateTraining,
   getTraining,
 } from '../../lib/profileStore';
-import { setReport, setTranscript } from '../../lib/assessmentStore';
+import { setReport, setTranscript, setClockImageUrl, setKind } from '../../lib/assessmentStore';
 import { useTranslation, localizedGreeting, localizedDate, localizedTime } from '../../lib/i18n';
 
 const GAMES = [
@@ -24,6 +24,70 @@ const GAMES = [
   { id: 'category-fluency', icon: '🗣️', nameKey: 'gameCategoryFluency', descKey: 'gameCategoryFluencyDesc', color: colors.tertiaryFixed, route: '/training/category-fluency' },
   { id: 'stroop', icon: '🎯', nameKey: 'gameStroop', descKey: 'gameStroopDesc', color: colors.primaryFixed, route: '/training/stroop' },
 ] as const;
+
+/**
+ * Compact horizontal card used for both clinical tests on the Home tab.
+ * Both the Clock Drawing Test and the Voice Check-In share this template
+ * so they read as peer assessments rather than hero + secondary.
+ */
+function TestCard({
+  title,
+  body,
+  icon,
+  background,
+  foreground,
+  onPress,
+}: {
+  title: string;
+  body: string;
+  icon: React.ComponentProps<typeof MaterialIcons>['name'];
+  background: string;
+  foreground: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => ({
+        backgroundColor: background,
+        padding: 24,
+        borderRadius: 28,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        opacity: pressed ? 0.92 : 1,
+        ...shadow.soft,
+      })}
+    >
+      <View
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 18,
+          backgroundColor: colors.surfaceContainerLowest,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <MaterialIcons name={icon} size={32} color={colors.primary} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ ...type.titleLg, color: foreground }}>{title}</Text>
+        <Text
+          style={{
+            ...type.bodyMd,
+            color: foreground,
+            opacity: 0.85,
+            marginTop: 2,
+          }}
+        >
+          {body}
+        </Text>
+      </View>
+      <MaterialIcons name="chevron-right" size={24} color={foreground} />
+    </Pressable>
+  );
+}
 
 const DAY_KEYS = ['daySun', 'dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri', 'daySat'] as const;
 
@@ -76,6 +140,14 @@ export default function Home() {
   const trainingDone = completed.length;
   const trainingTotal = GAMES.length;
 
+  function startVoiceAssessment() {
+    // Clear any lingering clock / questionnaire state from a prior session
+    // in this run so the upcoming voice report renders cleanly.
+    setClockImageUrl('');
+    setKind('voice');
+    router.push('/assessment/record');
+  }
+
   function confirmReset() {
     Alert.alert(
       t('resetDemoTitle'),
@@ -124,56 +196,40 @@ export default function Home() {
           </Text>
         </View>
 
-        {/* Hero CTA */}
-        <Pressable
-          onPress={() => router.push('/assessment/record')}
-          style={({ pressed }) => ({
-            backgroundColor: colors.primary,
-            padding: 32,
-            borderRadius: 32,
-            opacity: pressed ? 0.92 : 1,
-            ...shadow.card,
-          })}
-        >
-          <View
-            style={{
-              alignSelf: 'flex-start',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              borderRadius: 999,
+        {/* Clinical tests — questionnaire first, clock second, voice third. Same compact template. */}
+        <View style={{ gap: spacing.md }}>
+          <TestCard
+            title={t('homeQuestionnaireCardTitle')}
+            body={t('homeQuestionnaireCardBody')}
+            icon="fact-check"
+            background={colors.primaryContainer}
+            foreground={colors.onPrimaryContainer}
+            onPress={() => {
+              setClockImageUrl('');
+              setKind('questionnaire');
+              router.push('/assessment/questionnaire/questions');
             }}
-          >
-            <Text style={{ ...type.labelMd, color: '#fff', letterSpacing: 1.2 }}>
-              {dueToday ? t('badgeToday') : t('badgeNextActivity')}
-            </Text>
-          </View>
-          <Text style={{ ...type.headlineLg, color: '#fff', marginTop: 12 }}>
-            {dueToday ? t('dailyCheckIn') : t('extraAssessment')}
-          </Text>
-          <Text style={{ ...type.bodyLg, color: 'rgba(255,255,255,0.9)', marginTop: 4 }}>
-            {t('voiceCheckDesc')}
-          </Text>
-          <View
-            style={{
-              marginTop: 20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              backgroundColor: colors.secondaryContainer,
-              paddingHorizontal: 28,
-              paddingVertical: 14,
-              borderRadius: 20,
-              alignSelf: 'flex-start',
+          />
+          <TestCard
+            title={t('homeClockCardTitle')}
+            body={t('homeClockCardBody')}
+            icon="schedule"
+            background={colors.secondaryContainer}
+            foreground={colors.onSecondaryContainer}
+            onPress={() => {
+              setKind('clock');
+              router.push('/assessment/clock/draw');
             }}
-          >
-            <MaterialIcons name="play-arrow" size={22} color={colors.onSecondaryContainer} />
-            <Text style={{ ...type.titleLg, color: colors.onSecondaryContainer }}>
-              {dueToday ? t('startNow') : t('doAnother')}
-            </Text>
-          </View>
-        </Pressable>
+          />
+          <TestCard
+            title={dueToday ? t('dailyCheckIn') : t('extraAssessment')}
+            body={t('voiceCheckDesc')}
+            icon="mic"
+            background={colors.tertiaryFixed}
+            foreground={colors.onTertiaryFixed}
+            onPress={startVoiceAssessment}
+          />
+        </View>
 
         {/* Activity — Duolingo-style 7-day grid */}
         <View style={{ gap: 16 }}>
@@ -261,7 +317,7 @@ export default function Home() {
             {/* CTA if today not done */}
             {dueToday && (
               <Pressable
-                onPress={() => router.push('/assessment/record')}
+                onPress={startVoiceAssessment}
                 style={({ pressed }) => ({
                   backgroundColor: colors.primary,
                   paddingVertical: 14,
@@ -357,58 +413,87 @@ export default function Home() {
         {assessments.length > 0 && (
           <View style={{ gap: 16 }}>
             <Text style={{ ...type.headlineMd, color: colors.primary }}>{t('allAssessments')}</Text>
-            {assessments.map((a) => (
-              <Pressable
-                key={a.id}
-                onPress={() => {
-                  setReport(a.report);
-                  setTranscript(a.transcript);
-                  router.push('/assessment/report');
-                }}
-                style={({ pressed }) => ({
-                  backgroundColor: colors.surfaceContainerLowest,
-                  padding: 20,
-                  borderRadius: 24,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  opacity: pressed ? 0.9 : 1,
-                })}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 }}>
-                  <View
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 16,
-                      backgroundColor: colors.secondaryFixed,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text style={{ ...type.titleLg, color: colors.onSecondaryFixed }}>
-                      {Math.round(a.report.score)}
-                    </Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ ...type.bodyLg, color: colors.primary, fontWeight: '700' }}>
-                      {localizedDate(a.date, locale)}
-                    </Text>
-                    <Text
+            {assessments.map((a) => {
+              const kind = a.kind ?? 'voice';
+              const isClock = kind === 'clock';
+              const isQuestionnaire = kind === 'questionnaire';
+              const tileBg = isQuestionnaire
+                ? colors.primaryContainer
+                : isClock
+                  ? colors.tertiaryFixed
+                  : colors.secondaryFixed;
+              const tileFg = isQuestionnaire
+                ? colors.onPrimaryContainer
+                : isClock
+                  ? colors.onTertiaryFixed
+                  : colors.onSecondaryFixed;
+              return (
+                <Pressable
+                  key={a.id}
+                  onPress={() => {
+                    setReport(a.report);
+                    setTranscript(a.transcript);
+                    // Restore (or clear) the clock image and kind so the report
+                    // screen renders the correct variant for this historical entry.
+                    setClockImageUrl(isClock && a.imageUrl ? a.imageUrl : '');
+                    setKind(kind);
+                    router.push('/assessment/report');
+                  }}
+                  style={({ pressed }) => ({
+                    backgroundColor: colors.surfaceContainerLowest,
+                    padding: 20,
+                    borderRadius: 24,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    opacity: pressed ? 0.9 : 1,
+                  })}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 }}>
+                    <View
                       style={{
-                        ...type.labelMd,
-                        color: colors.outline,
-                        textTransform: 'none',
-                        marginTop: 2,
+                        width: 48,
+                        height: 48,
+                        borderRadius: 16,
+                        backgroundColor: tileBg,
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}
                     >
-                      {RISK_LABEL[a.report.riskLevel].label} • {localizedTime(a.date, locale)}
-                    </Text>
+                      {isClock ? (
+                        <MaterialIcons name="schedule" size={24} color={tileFg} />
+                      ) : isQuestionnaire ? (
+                        <MaterialIcons name="fact-check" size={24} color={tileFg} />
+                      ) : (
+                        <Text style={{ ...type.titleLg, color: tileFg }}>
+                          {Math.round(a.report.score)}
+                        </Text>
+                      )}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ ...type.bodyLg, color: colors.primary, fontWeight: '700' }}>
+                        {localizedDate(a.date, locale)}
+                      </Text>
+                      <Text
+                        style={{
+                          ...type.labelMd,
+                          color: colors.outline,
+                          textTransform: 'none',
+                          marginTop: 2,
+                        }}
+                      >
+                        {isClock
+                          ? `${t('clockBadge')} • ${Math.round(a.report.score)} • ${localizedTime(a.date, locale)}`
+                          : isQuestionnaire
+                            ? `${t('questionnaireBadge')} • ${RISK_LABEL[a.report.riskLevel].label} • ${localizedTime(a.date, locale)}`
+                            : `${RISK_LABEL[a.report.riskLevel].label} • ${localizedTime(a.date, locale)}`}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
-              </Pressable>
-            ))}
+                  <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
+                </Pressable>
+              );
+            })}
           </View>
         )}
 

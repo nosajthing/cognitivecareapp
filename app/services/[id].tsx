@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -40,14 +40,18 @@ export default function ServiceDetail() {
       >
         {/* Hero */}
         <View
-          style={{
-            height: 280,
-            backgroundColor: service.heroColor,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          style={[
+            service.heroImage ? styles.heroPhoto : styles.heroSolid,
+            { backgroundColor: service.heroColor },
+          ]}
         >
-          {service.doctorEmoji ? (
+          {service.heroImage ? (
+            <Image
+              source={service.heroImage}
+              style={styles.heroPhotoImage}
+              resizeMode="cover"
+            />
+          ) : service.doctorEmoji ? (
             <View style={styles.doctorAvatar}>
               <Text style={{ fontSize: 64 }}>{service.doctorEmoji}</Text>
             </View>
@@ -74,7 +78,16 @@ export default function ServiceDetail() {
 
           {/* Badge */}
           {service.badge && (
-            <View style={[styles.heroBadge, { top: insets.top + 8 }]}>
+            <View
+              style={[
+                styles.heroBadge,
+                service.heroImage && styles.heroBadgeFlagship,
+                { top: insets.top + 8 },
+              ]}
+            >
+              {service.heroImage && (
+                <MaterialIcons name="verified" size={14} color="#fff" />
+              )}
               <Text style={{ ...typ.labelLg, color: '#fff' }}>{service.badge[loc]}</Text>
             </View>
           )}
@@ -176,29 +189,34 @@ export default function ServiceDetail() {
 
       {/* Fixed bottom action bar */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <View>
-          {service.originalPrice && (
-            <Text style={styles.originalPrice}>¥{service.originalPrice.toLocaleString()}</Text>
-          )}
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-            <Text style={{ ...typ.headlineMd, color: colors.onSurface }}>
-              ¥{service.price.toLocaleString()}
-            </Text>
-            <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }}>
-              {service.priceLabel[loc]}
-            </Text>
+        {!service.hidePrice && (
+          <View>
+            {service.originalPrice && (
+              <Text style={styles.originalPrice}>¥{service.originalPrice.toLocaleString()}</Text>
+            )}
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
+              <Text style={{ ...typ.headlineMd, color: colors.onSurface }}>
+                ¥{service.price.toLocaleString()}
+              </Text>
+              <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }}>
+                {service.priceLabel[loc]}
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
 
         <Pressable
           onPress={handleBook}
           style={({ pressed }) => [
             styles.bookButton,
+            service.hidePrice && styles.bookButtonFull,
             { opacity: pressed ? 0.9 : 1 },
           ]}
         >
           <Text style={{ ...typ.titleLg, color: colors.onPrimary }}>
-            {service.category === 'insurance'
+            {service.hidePrice
+              ? t('servicesBookConsult' as any)
+              : service.category === 'insurance'
               ? (loc === 'zh' ? '购买' : 'Purchase')
               : t('servicesBookNow' as any)}
           </Text>
@@ -209,6 +227,23 @@ export default function ServiceDetail() {
 }
 
 const styles = StyleSheet.create({
+  heroSolid: {
+    height: 320,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  heroPhoto: {
+    width: '100%',
+    aspectRatio: 3 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  heroPhotoImage: {
+    width: '100%',
+    height: '100%',
+  },
   doctorAvatar: {
     width: 130,
     height: 130,
@@ -243,6 +278,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     paddingHorizontal: 14,
     paddingVertical: 6,
+  },
+  heroBadgeFlagship: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.primary,
+    ...shadow.soft,
   },
   availabilityBadge: {
     flexDirection: 'row',
@@ -299,6 +341,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     paddingHorizontal: spacing.xl,
     paddingVertical: 14,
+  },
+  bookButtonFull: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 16,
   },
   originalPrice: {
     ...typ.bodyMd,

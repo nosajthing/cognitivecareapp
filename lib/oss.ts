@@ -41,3 +41,38 @@ export async function uploadAudioToOSS(localUri: string): Promise<string> {
   console.log('[OSS] Uploaded:', url);
   return url;
 }
+
+/**
+ * Upload a local PNG image to OSS and return its public URL.
+ * Used by the Clock Drawing Test to send the captured canvas to a vision model.
+ */
+export async function uploadImageToOSS(localUri: string): Promise<string> {
+  const base64 = await FileSystem.readAsStringAsync(localUri, {
+    encoding: 'base64' as any,
+  });
+
+  const binaryStr = atob(base64);
+  const bytes = new Uint8Array(binaryStr.length);
+  for (let i = 0; i < binaryStr.length; i++) {
+    bytes[i] = binaryStr.charCodeAt(i);
+  }
+
+  const key = `clock/${Date.now()}.png`;
+
+  const res = await fetch(`${ENDPOINT}/${key}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'image/png',
+    },
+    body: bytes,
+  });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`OSS image upload failed (${res.status}): ${txt}`);
+  }
+
+  const url = `${ENDPOINT}/${key}`;
+  console.log('[OSS] Uploaded image:', url);
+  return url;
+}

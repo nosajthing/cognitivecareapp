@@ -2,21 +2,66 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { AssessmentReport } from './openai';
 
-export type FocusArea = 'memory' | 'language' | 'attention' | 'sleep' | 'social';
+export type FocusArea = 'memory' | 'language' | 'attention' | 'mood' | 'social';
+
+export type Sex = 'male' | 'female' | 'unspecified';
+export type Handedness = 'right' | 'left' | 'ambidextrous';
+export type FamilyHistoryDementia = 'yes' | 'no' | 'unsure';
+
+// Years of formal schooling completed (0–20). The value 21 is the sentinel
+// for "20+ years" (post-graduate / extended study) so the picker can offer
+// an open-ended top option without modeling a separate enum.
+export const EDUCATION_YEARS_MAX = 21;
 
 export type UserProfile = {
   name: string;
   email: string;
   birthYear?: number;
+  sex?: Sex;
+  handedness?: Handedness;
+  educationYears?: number;
+  familyHistoryDementia?: FamilyHistoryDementia;
   focusAreas: FocusArea[];
   createdAt: string;
 };
 
+/**
+ * Lightweight clinical-context view of the profile, derived at call time
+ * (so the AI graders never depend on the persisted shape directly).
+ * Empty when no profile or no fields are set — graders can no-op safely.
+ */
+export type PatientContext = {
+  age?: number;
+  sex?: Sex;
+  handedness?: Handedness;
+  educationYears?: number;
+  familyHistoryDementia?: FamilyHistoryDementia;
+};
+
+export function getPatientContext(profile: UserProfile | null): PatientContext {
+  if (!profile) return {};
+  const thisYear = new Date().getFullYear();
+  return {
+    age: profile.birthYear ? thisYear - profile.birthYear : undefined,
+    sex: profile.sex,
+    handedness: profile.handedness,
+    educationYears: profile.educationYears,
+    familyHistoryDementia: profile.familyHistoryDementia,
+  };
+}
+
 export type AssessmentRecord = {
   id: string;
   date: string; // ISO
+  // 'voice' for the audio check-in, 'clock' for the Clock Drawing Test,
+  // 'questionnaire' for the rule-based cognitive screening checklist.
+  // Optional so legacy records persisted before this field existed
+  // deserialize cleanly — treat undefined as 'voice' at read time.
+  kind?: 'voice' | 'clock' | 'questionnaire';
   report: AssessmentReport;
   transcript: string;
+  // Public OSS URL of the captured clock drawing PNG, when kind === 'clock'.
+  imageUrl?: string;
 };
 
 type AppState = {

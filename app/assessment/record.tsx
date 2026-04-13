@@ -13,11 +13,11 @@ import { useTranslation } from '../../lib/i18n';
 const MAX_SECONDS = 60;
 const METERING_BUFFER_SIZE = 40;
 
-const PROMPT_KEYS: Record<string, 'promptMemory' | 'promptLanguage' | 'promptAttention' | 'promptSleep' | 'promptSocial'> = {
+const PROMPT_KEYS: Record<string, 'promptMemory' | 'promptLanguage' | 'promptAttention' | 'promptMood' | 'promptSocial'> = {
   memory: 'promptMemory',
   language: 'promptLanguage',
   attention: 'promptAttention',
-  sleep: 'promptSleep',
+  mood: 'promptMood',
   social: 'promptSocial',
 };
 

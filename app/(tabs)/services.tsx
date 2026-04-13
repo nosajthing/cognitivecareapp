@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { ScrollView, View, Text, Pressable, StyleSheet, Dimensions, FlatList } from 'react-native';
+import { ScrollView, View, Text, Pressable, StyleSheet, Dimensions, FlatList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -55,8 +55,8 @@ export default function Services() {
           <Section
             title={t('servicesPrimeTitle' as any)}
             subtitle={loc === 'zh'
-              ? '认知健康问题的诊疗费用高昂，一份高端住院医疗险让您无后顾之忧。覆盖特需部、VIP病房及海外就医。'
-              : 'Cognitive health treatments can be costly. A premium inpatient plan gives you peace of mind with coverage for VIP wards, specialist care, and overseas treatment.'}
+              ? '认知障碍治疗费用高昂，柏盛健康高端住院险为全家提供认知健康与住院综合保障。'
+              : 'Cognitive care can be costly. Basheng Health\'s premium inpatient plan gives your family complete peace of mind for cognitive and general hospital care.'}
           />
           <ProductCard
             item={featuredInsurance}
@@ -149,6 +149,12 @@ function ProductCard({
   isDoctor?: boolean;
   onPress: () => void;
 }) {
+  // Photo-led hero variant: when item.heroImage is set, render the strong
+  // editorial layout with title overlaid on the image and no price.
+  if (item.heroImage) {
+    return <PhotoLedProductCard item={item} locale={locale} onPress={onPress} />;
+  }
+
   return (
     <Pressable
       onPress={onPress}
@@ -199,17 +205,19 @@ function ProductCard({
         </Text>
 
         {/* Price row */}
-        <View style={styles.priceRow}>
-          {item.originalPrice && (
-            <Text style={styles.originalPrice}>¥{item.originalPrice.toLocaleString()}</Text>
-          )}
-          <Text style={{ ...typ.titleLg, color: colors.onSurface }}>
-            ¥{item.price.toLocaleString()}
-          </Text>
-          <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }}>
-            {item.priceLabel[locale]}
-          </Text>
-        </View>
+        {!item.hidePrice && (
+          <View style={styles.priceRow}>
+            {item.originalPrice && (
+              <Text style={styles.originalPrice}>¥{item.originalPrice.toLocaleString()}</Text>
+            )}
+            <Text style={{ ...typ.titleLg, color: colors.onSurface }}>
+              ¥{item.price.toLocaleString()}
+            </Text>
+            <Text style={{ ...typ.bodyMd, color: colors.onSurfaceVariant }}>
+              {item.priceLabel[locale]}
+            </Text>
+          </View>
+        )}
 
         {/* Rating row */}
         {item.reviews.length > 0 && (
@@ -222,6 +230,104 @@ function ProductCard({
               ({item.reviews.length})
             </Text>
           </View>
+        )}
+      </View>
+    </Pressable>
+  );
+}
+
+/* ── Photo-led editorial card (used for flagship products) ── */
+function PhotoLedProductCard({
+  item,
+  locale,
+  onPress,
+}: {
+  item: ServiceItem;
+  locale: 'en' | 'zh';
+  onPress: () => void;
+}) {
+  const avgRating =
+    item.reviews.length > 0
+      ? item.reviews.reduce((sum, r) => sum + r.rating, 0) / item.reviews.length
+      : 0;
+  const reviewsLabel = locale === 'zh'
+    ? `${item.reviews.length} 条评价`
+    : `${item.reviews.length} reviews`;
+  const topReview = item.reviews[0];
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.card,
+        { opacity: pressed ? 0.95 : 1 },
+      ]}
+    >
+      {/* Photo hero — 3:2 aspect, full image edge-to-edge */}
+      <View style={[styles.photoHero, { backgroundColor: item.heroColor }]}>
+        <Image
+          source={item.heroImage}
+          style={styles.photoHeroImage}
+          resizeMode="cover"
+        />
+
+        {/* Flagship badge */}
+        {item.badge && (
+          <View style={styles.flagshipBadge}>
+            <MaterialIcons name="verified" size={14} color="#fff" />
+            <Text style={{ ...typ.labelLg, color: '#fff' }}>
+              {item.badge[locale]}
+            </Text>
+          </View>
+        )}
+
+        {/* Tech tag chip */}
+        {item.techTag && (
+          <View style={styles.techTagChip}>
+            <MaterialIcons name="bolt" size={15} color="#fff" />
+            <Text style={{ ...typ.labelLg, color: '#fff' }}>
+              {item.techTag[locale]}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* Title + subtitle block (white area) */}
+      <View style={styles.photoTitleBlock}>
+        <Text style={styles.photoTitleDark}>{item.title[locale]}</Text>
+        <Text style={styles.photoSubtitleDark} numberOfLines={2}>
+          {item.subtitle[locale]}
+        </Text>
+      </View>
+
+      {/* Social-proof strip */}
+      <View style={styles.socialStrip}>
+        <View style={styles.socialRow}>
+          <MaterialIcons name="star" size={16} color={colors.tertiary} />
+          <Text style={{ ...typ.labelLg, color: colors.onSurface }}>
+            {avgRating.toFixed(1)}
+          </Text>
+          <Text style={styles.socialDot}>·</Text>
+          <Text style={{ ...typ.labelLg, color: colors.onSurfaceVariant }}>
+            {reviewsLabel}
+          </Text>
+          {item.totalBookingsLabel && (
+            <>
+              <Text style={styles.socialDot}>·</Text>
+              <Text style={{ ...typ.labelLg, color: colors.onSurfaceVariant }}>
+                {item.totalBookingsLabel[locale]}
+              </Text>
+            </>
+          )}
+        </View>
+
+        {topReview && (
+          <Text
+            style={styles.reviewQuote}
+            numberOfLines={2}
+          >
+            “{topReview.text[locale]}” — {topReview.author[locale]}
+          </Text>
         )}
       </View>
     </Pressable>
@@ -296,5 +402,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  // ── Photo-led card ──
+  photoHero: {
+    width: '100%',
+    aspectRatio: 3 / 2,
+    overflow: 'hidden',
+  },
+  photoHeroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  flagshipBadge: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.primary,
+    borderRadius: radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    ...shadow.soft,
+  },
+  techTagChip: {
+    position: 'absolute',
+    left: 16,
+    bottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(0, 77, 91, 0.92)',
+    borderRadius: radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  photoTitleBlock: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xs,
+    gap: 4,
+  },
+  photoTitleDark: {
+    fontSize: 22,
+    fontWeight: '800',
+    lineHeight: 28,
+    color: colors.onSurface,
+    letterSpacing: -0.2,
+  },
+  photoSubtitleDark: {
+    ...typ.bodyMd,
+    color: colors.onSurfaceVariant,
+    lineHeight: 20,
+  },
+  socialStrip: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: 6,
+  },
+  socialRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  socialDot: {
+    ...typ.labelLg,
+    color: colors.onSurfaceVariant,
+    marginHorizontal: 4,
+  },
+  reviewQuote: {
+    ...typ.bodyMd,
+    color: colors.onSurfaceVariant,
+    fontStyle: 'italic',
+    lineHeight: 20,
   },
 });

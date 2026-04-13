@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -6,12 +6,14 @@ import { View, ActivityIndicator } from 'react-native';
 import { colors } from '../lib/theme';
 import { useAppState, useHydrated } from '../lib/profileStore';
 import { I18nProvider } from '../lib/i18n';
+import { LaunchScreen } from '../components/LaunchScreen';
 
 function AuthGate() {
   const hydrated = useHydrated();
   const { profile } = useAppState();
   const segments = useSegments();
   const router = useRouter();
+  const [launchDone, setLaunchDone] = useState(false);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -26,6 +28,10 @@ function AuthGate() {
       // (we navigate away explicitly after completing flow)
     }
   }, [hydrated, profile, segments]);
+
+  if (!launchDone) {
+    return <LaunchScreen onComplete={() => setLaunchDone(true)} />;
+  }
 
   if (!hydrated) {
     return (

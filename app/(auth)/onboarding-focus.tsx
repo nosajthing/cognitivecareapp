@@ -9,8 +9,8 @@ import { useTranslation } from '../../lib/i18n';
 
 type AreaDef = {
   key: FocusArea;
-  labelKey: 'focusMemory' | 'focusLanguage' | 'focusAttention' | 'focusSleep' | 'focusSocial';
-  descKey: 'focusMemoryDesc' | 'focusLanguageDesc' | 'focusAttentionDesc' | 'focusSleepDesc' | 'focusSocialDesc';
+  labelKey: 'focusMemory' | 'focusLanguage' | 'focusAttention' | 'focusMood' | 'focusSocial';
+  descKey: 'focusMemoryDesc' | 'focusLanguageDesc' | 'focusAttentionDesc' | 'focusMoodDesc' | 'focusSocialDesc';
   icon: React.ComponentProps<typeof MaterialIcons>['name'];
 };
 
@@ -18,7 +18,7 @@ const AREAS: AreaDef[] = [
   { key: 'memory', labelKey: 'focusMemory', descKey: 'focusMemoryDesc', icon: 'psychology' },
   { key: 'language', labelKey: 'focusLanguage', descKey: 'focusLanguageDesc', icon: 'translate' },
   { key: 'attention', labelKey: 'focusAttention', descKey: 'focusAttentionDesc', icon: 'center-focus-strong' },
-  { key: 'sleep', labelKey: 'focusSleep', descKey: 'focusSleepDesc', icon: 'bedtime' },
+  { key: 'mood', labelKey: 'focusMood', descKey: 'focusMoodDesc', icon: 'sentiment-satisfied-alt' },
   { key: 'social', labelKey: 'focusSocial', descKey: 'focusSocialDesc', icon: 'groups' },
 ];
 
@@ -40,8 +40,8 @@ export default function OnboardingFocus() {
 
   return (
     <OnboardingScaffold
-      step={2}
-      total={3}
+      step={4}
+      total={5}
       title={t('focusTitle')}
       subtitle={t('focusSubtitle')}
       canContinue={selected.size > 0}

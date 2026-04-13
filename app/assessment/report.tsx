@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-import { ScrollView, View, Text, Pressable, Animated, Easing, Share } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ScrollView, View, Text, Pressable, Animated, Easing, Share, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { colors, type, shadow } from '../../lib/theme';
+import * as Speech from 'expo-speech';
+import { colors, type, shadow, radius } from '../../lib/theme';
 import { ScoreRing } from '../../components/ScoreRing';
 import { getState } from '../../lib/assessmentStore';
 import { useTranslation, localizedDate } from '../../lib/i18n';
+import type { AssessmentReport } from '../../lib/openai';
 
 function FadeSlideIn({ delay = 0, children }: { delay?: number; children: React.ReactNode }) {
   const opacity = useRef(new Animated.Value(0)).current;
@@ -39,7 +41,36 @@ const DIM_KEYS: Record<string, 'dimMemory' | 'dimLanguage' | 'dimAttention' | 'd
 export default function Report() {
   const router = useRouter();
   const { t, locale } = useTranslation();
-  const { report, transcript } = getState();
+  const { report, transcript, clockImageUrl, kind } = getState();
+  const isQuestionnaire = kind === 'questionnaire';
+  const isClock = !!clockImageUrl && !isQuestionnaire;
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
+
+  const buildNarration = (r: AssessmentReport) =>
+    [r.headline, r.analysis, ...r.recommendations].filter(Boolean).join('. ');
+
+  const handleListen = () => {
+    if (!report) return;
+    if (isSpeaking) {
+      Speech.stop();
+      setIsSpeaking(false);
+      return;
+    }
+    setIsSpeaking(true);
+    Speech.speak(buildNarration(report), {
+      language: locale === 'zh' ? 'zh-CN' : 'en-US',
+      rate: 0.9,
+      onDone: () => setIsSpeaking(false),
+      onStopped: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
+  };
 
   const handleShare = async () => {
     const { report } = getState();
@@ -127,6 +158,43 @@ export default function Report() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48, gap: 24 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* Captured clock drawing (only for clock reports) */}
+        {isClock && (
+          <FadeSlideIn delay={50}>
+            <View
+              style={{
+                backgroundColor: colors.surfaceContainerLowest,
+                borderRadius: 32,
+                padding: 16,
+                alignItems: 'center',
+                ...shadow.card,
+              }}
+            >
+              <Image
+                source={{ uri: clockImageUrl! }}
+                style={{
+                  width: 240,
+                  height: 240,
+                  borderRadius: radius.xl,
+                  backgroundColor: '#fff',
+                }}
+                resizeMode="contain"
+              />
+              <Text
+                style={{
+                  ...type.labelMd,
+                  color: colors.outline,
+                  textTransform: 'uppercase',
+                  marginTop: 12,
+                  letterSpacing: 1.2,
+                }}
+              >
+                {t('clockTestName')}
+              </Text>
+            </View>
+          </FadeSlideIn>
+        )}
+
         {/* Striking insight card */}
         <FadeSlideIn delay={100}>
           <View
@@ -190,7 +258,11 @@ export default function Report() {
                 <Text style={{ ...type.labelLg, color: risk.fg }}>{risk.label}</Text>
               </View>
               <Text style={{ ...type.bodyMd, color: colors.onSurfaceVariant }}>
-                {t('basedOnVoiceSample')}
+                {isQuestionnaire
+                  ? t('basedOnQuestionnaire')
+                  : isClock
+                    ? t('clockTestName')
+                    : t('basedOnVoiceSample')}
               </Text>
             </View>
           </View>
@@ -250,6 +322,31 @@ export default function Report() {
               <MaterialIcons name="auto-awesome" size={22} color={colors.tertiary} />
               <Text style={{ ...type.titleLg, color: colors.onTertiaryFixed }}>{t('aiAnalysis')}</Text>
             </View>
+            <Pressable
+              onPress={handleListen}
+              accessibilityRole="button"
+              accessibilityLabel={isSpeaking ? t('stopListening') : t('listenToAnalysis')}
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                backgroundColor: isSpeaking ? colors.error : colors.tertiary,
+                borderRadius: radius.full,
+                paddingVertical: 14,
+                paddingHorizontal: 20,
+                opacity: pressed ? 0.85 : 1,
+              })}
+            >
+              <MaterialIcons
+                name={isSpeaking ? 'stop' : 'volume-up'}
+                size={22}
+                color="#fff"
+              />
+              <Text style={{ ...type.titleLg, color: '#fff' }}>
+                {isSpeaking ? t('stopListening') : t('listenToAnalysis')}
+              </Text>
+            </Pressable>
             <Text style={{ ...type.bodyLg, color: colors.onTertiaryFixed, lineHeight: 26 }}>
               {report.analysis}
             </Text>
@@ -292,8 +389,10 @@ export default function Report() {
           </View>
         </FadeSlideIn>
 
-        {/* Transcript */}
-        {transcript && (
+        {/* Transcript — for voice and clock. The questionnaire stores
+            structured answers in transcript for record keeping only and is
+            never displayed verbatim. */}
+        {transcript && !isQuestionnaire && (
           <FadeSlideIn delay={1300}>
             <View
               style={{
@@ -314,19 +413,92 @@ export default function Report() {
         )}
 
         <FadeSlideIn delay={1500}>
-          <Pressable
-            onPress={() => router.replace('/assessment/record')}
-            style={({ pressed }) => ({
-              backgroundColor: colors.primary,
-              paddingVertical: 16,
-              borderRadius: 20,
-              alignItems: 'center',
-              marginTop: 8,
-              opacity: pressed ? 0.9 : 1,
-            })}
-          >
-            <Text style={{ ...type.titleLg, color: '#fff' }}>{t('takeAnother')}</Text>
-          </Pressable>
+          {report.riskLevel !== 'low' ? (
+            <View style={{ gap: 12, marginTop: 8 }}>
+              <View
+                style={{
+                  backgroundColor: colors.errorContainer,
+                  borderRadius: 24,
+                  padding: 20,
+                  gap: 16,
+                  ...shadow.card,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <View
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 22,
+                      backgroundColor: colors.onErrorContainer,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <MaterialIcons name="health-and-safety" size={24} color={colors.errorContainer} />
+                  </View>
+                  <Text style={{ ...type.titleLg, color: colors.onErrorContainer, flex: 1 }}>
+                    {t('deeperScreeningTitle')}
+                  </Text>
+                </View>
+                <Text style={{ ...type.bodyMd, color: colors.onErrorContainer, opacity: 0.9 }}>
+                  {t('deeperScreeningBody')}
+                </Text>
+                <Pressable
+                  onPress={() => router.push('/services/screening-comprehensive')}
+                  style={({ pressed }) => ({
+                    backgroundColor: colors.primary,
+                    paddingVertical: 16,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    opacity: pressed ? 0.9 : 1,
+                  })}
+                >
+                  <Text style={{ ...type.titleLg, color: '#fff' }}>{t('deeperScreeningCta')}</Text>
+                </Pressable>
+              </View>
+              <Pressable
+                onPress={() =>
+                  router.replace(
+                    isQuestionnaire
+                      ? '/assessment/questionnaire/questions'
+                      : isClock
+                        ? '/assessment/clock/draw'
+                        : '/assessment/record',
+                  )
+                }
+                style={({ pressed }) => ({
+                  paddingVertical: 12,
+                  alignItems: 'center',
+                  opacity: pressed ? 0.6 : 1,
+                })}
+              >
+                <Text style={{ ...type.bodyLg, color: colors.primary, fontWeight: '600' }}>{t('takeAnother')}</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={() =>
+                router.replace(
+                  isQuestionnaire
+                    ? '/assessment/questionnaire/questions'
+                    : isClock
+                      ? '/assessment/clock/draw'
+                      : '/assessment/record',
+                )
+              }
+              style={({ pressed }) => ({
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                borderRadius: 20,
+                alignItems: 'center',
+                marginTop: 8,
+                opacity: pressed ? 0.9 : 1,
+              })}
+            >
+              <Text style={{ ...type.titleLg, color: '#fff' }}>{t('takeAnother')}</Text>
+            </Pressable>
+          )}
         </FadeSlideIn>
       </ScrollView>
     </SafeAreaView>

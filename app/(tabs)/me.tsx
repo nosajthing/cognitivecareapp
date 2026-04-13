@@ -5,7 +5,36 @@ import { useRouter } from 'expo-router';
 import { colors, type, radius, shadow, spacing } from '../../lib/theme';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { useTranslation } from '../../lib/i18n';
-import { useAppState, resetAll } from '../../lib/profileStore';
+import {
+  useAppState,
+  resetAll,
+  EDUCATION_YEARS_MAX,
+  type Sex,
+  type Handedness,
+  type FamilyHistoryDementia,
+} from '../../lib/profileStore';
+
+// Locale-aware label lookups for the demographic fields. Reuses translation
+// keys defined for the onboarding screens so labels stay in sync.
+function sexLabel(t: (k: any) => string, v?: Sex): string {
+  if (!v) return '';
+  return t(v === 'male' ? 'sexMale' : v === 'female' ? 'sexFemale' : 'sexUnspecified');
+}
+function handednessLabel(t: (k: any) => string, v?: Handedness): string {
+  if (!v) return '';
+  return t(v === 'right' ? 'handRight' : v === 'left' ? 'handLeft' : 'handBoth');
+}
+function educationYearsLabel(t: (k: any, p?: any) => string, v?: number): string {
+  if (v == null) return '';
+  if (v >= EDUCATION_YEARS_MAX) return t('educationYearsPlus');
+  return t('educationYearsValue', { years: v });
+}
+function familyHistoryLabel(t: (k: any) => string, v?: FamilyHistoryDementia): string {
+  if (!v) return '';
+  return t(
+    v === 'yes' ? 'familyHistoryYes' : v === 'no' ? 'familyHistoryNo' : 'familyHistoryUnsure'
+  );
+}
 
 /* ── Reusable row inside a section card ──────────────────────────── */
 function Row({
@@ -110,6 +139,26 @@ export default function MeScreen() {
             <Row label={t('settingsBirthYear')}>
               <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
                 {profile?.birthYear != null ? String(profile.birthYear) : '—'}
+              </Text>
+            </Row>
+            <Row label={t('settingsSex')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {sexLabel(t, profile?.sex) || '—'}
+              </Text>
+            </Row>
+            <Row label={t('settingsHandedness')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {handednessLabel(t, profile?.handedness) || '—'}
+              </Text>
+            </Row>
+            <Row label={t('settingsEducation')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {educationYearsLabel(t, profile?.educationYears) || '—'}
+              </Text>
+            </Row>
+            <Row label={t('settingsFamilyHistory')}>
+              <Text style={{ ...type.bodyLg, color: colors.onSurface }}>
+                {familyHistoryLabel(t, profile?.familyHistoryDementia) || '—'}
               </Text>
             </Row>
           </Section>

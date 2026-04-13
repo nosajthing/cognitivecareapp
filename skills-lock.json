@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "remotion-best-practices": {
+      "source": "/tmp/remotion-skills",
+      "sourceType": "local",
+      "computedHash": "df654933e451556147e384078c3fbdbac997cb0fe4d2f2db7642000c239304c5"
+    }
+  }
+}

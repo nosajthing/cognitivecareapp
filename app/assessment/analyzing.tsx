@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { colors, type, radius } from '../../lib/theme';
 import { getState, setReport, setTranscript, setError } from '../../lib/assessmentStore';
 import { transcribeAudio, analyzeAssessment } from '../../lib/openai';
-import { addAssessment } from '../../lib/profileStore';
+import { addAssessment, useAppState, getPatientContext } from '../../lib/profileStore';
 import { useTranslation } from '../../lib/i18n';
 
 const STEP_KEYS = [
@@ -118,6 +118,7 @@ function FloatingWord({ word, delay: startDelay }: { word: string; delay: number
 export default function Analyzing() {
   const router = useRouter();
   const { t, locale } = useTranslation();
+  const { profile } = useAppState();
   const [stepIdx, setStepIdx] = useState(0);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [visibleWords, setVisibleWords] = useState<string[]>([]);
@@ -129,12 +130,13 @@ export default function Analyzing() {
   // Reveal floating words progressively
   useEffect(() => {
     if (errMsg) return;
+    setVisibleWords([]);
     const shuffled = [...floatingWords].sort(() => Math.random() - 0.5);
     const timers: ReturnType<typeof setTimeout>[] = [];
     shuffled.slice(0, 8).forEach((word, i) => {
       timers.push(
         setTimeout(() => {
-          setVisibleWords((prev) => [...prev, word]);
+          setVisibleWords((prev) => (prev.includes(word) ? prev : [...prev, word]));
         }, 800 + i * 400)
       );
     });
@@ -166,7 +168,8 @@ export default function Analyzing() {
         await new Promise((r) => setTimeout(r, 600));
 
         setStepIdx(2);
-        const report = await analyzeAssessment(transcript, prompt, locale);
+        const patient = getPatientContext(profile);
+        const report = await analyzeAssessment(transcript, prompt, locale, patient);
         if (!mounted) return;
         setReport(report);
 
@@ -248,7 +251,7 @@ export default function Analyzing() {
               }}
             >
               {visibleWords.map((word, i) => (
-                <FloatingWord key={word} word={word} delay={i * 150} />
+                <FloatingWord key={`${word}-${i}`} word={word} delay={i * 150} />
               ))}
             </View>
           </>

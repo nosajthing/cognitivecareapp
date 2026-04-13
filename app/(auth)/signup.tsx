@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -48,12 +49,17 @@ export default function Signup() {
                   width: 64,
                   height: 64,
                   borderRadius: 20,
-                  backgroundColor: colors.primary,
+                  backgroundColor: colors.surfaceContainerLowest,
                   alignItems: 'center',
                   justifyContent: 'center',
+                  ...shadow.soft,
                 }}
               >
-                <MaterialIcons name="psychology" size={36} color="#fff" />
+                <Image
+                  source={require('../../assets/logo.png')}
+                  style={{ width: 52, height: 52 }}
+                  resizeMode="contain"
+                />
               </View>
               <Pressable
                 onPress={() => setLocale(locale === 'en' ? 'zh' : 'en')}
